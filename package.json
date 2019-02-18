@@ -1,0 +1,24 @@
+{
+  "name": "json2react",
+  "version": "1.0.0",
+  "description": "A node js library to transform a json view model into a set of components ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/glaucopater/json2react.git"
+  },
+  "keywords": [
+    "json",
+    "react",
+    "test"
+  ],
+  "author": "Glauco Pater",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/glaucopater/json2react/issues"
+  },
+  "homepage": "https://github.com/glaucopater/json2react#readme"
+}
