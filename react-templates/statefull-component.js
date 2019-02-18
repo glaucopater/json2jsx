@@ -1,8 +1,9 @@
 module.exports = {
-templateFunction: function(name,child){
-const childComponent = child ? `<${child} />` : '';
-const importChildStatement = child ? `import ${child} from '../${child}/${child}.jsx'` : '';
-return `import React, { Component } from 'react'; ${importChildStatement}  
+templateFunction: function(name,child,isChild){
+const childComponent = !isChild ? `<${child} />` : '';
+const importChildStatement = !isChild ? `import ${child} from './${child}/${child}'` : '';
+return `import React, { Component } from 'react'; 
+${importChildStatement}  
 export default class ${name} extends Component { 
     componentDidMount() {
         console.log(this.props);

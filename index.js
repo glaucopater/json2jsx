@@ -1,4 +1,5 @@
 const fs = require('fs');
+const moment = require('moment');
 const defaultPath = process.cwd();
 const statefullComponent = require('./react-templates/statefull-component');
 const statelessComponent = require('./react-templates/stateless-component');
@@ -6,9 +7,9 @@ const data = require('./json_samples/data');
 //const data = require('./json_samples/swapi');
 
 module.exports = {
-    mixData: function (name,child) {
+    mixData: function (name,child,isChild) {
         let result;
-        let template = statefullComponent.templateFunction(name,child);
+        let template = statefullComponent.templateFunction(name,child,isChild);
         result = template;
         return result;
     },
@@ -27,28 +28,55 @@ module.exports = {
                         }
                     });
                     if(child){
-                        module.exports.saveToFile(child);
+                        module.exports.saveToFile(item,child,true);
                     }
                 }
-                module.exports.saveToFile(item, child);
+                module.exports.saveToFile(item, child, false);
             }
         });
     },
-    saveToFile: function(name,child){
+    saveToFile: function(name, child, isChild){
         name = module.exports.capitalize(name);
         if(child){
             child = module.exports.capitalize(child);
         }
-        let res = module.exports.mixData(name,child);
-        const dir = `${defaultPath}/output/${name}`;
+        let res = module.exports.mixData(name,child,isChild);
+        
+        const m = moment().format('YYYYMMDD-HHmm');
+        if (!fs.existsSync(`${defaultPath}/output/${m}`)){
+            fs.mkdirSync(`${defaultPath}/output/${m}`);
+        }
+
+        let appDir, dir, filename;
+        if(isChild){
+            appDir = `${defaultPath}/output/${m}/${name}`;
+            if (!fs.existsSync(appDir)){
+                fs.mkdirSync(appDir);
+            }
+            dir = `${appDir}/${child}`;
+            if (!fs.existsSync(dir)){
+                fs.mkdirSync(dir);
+            }
+            filename = `${dir}/${child}.jsx`;
+        }
+        else {
+            appDir = `${defaultPath}/output/${m}`;
+            dir = `${appDir}/${name}`;
+            filename = `${dir}/${name}.jsx`;
+        }
+            
+        if (!fs.existsSync(appDir)){
+            fs.mkdirSync(appDir);
+        }
+
         if (!fs.existsSync(dir)){
             fs.mkdirSync(dir);
         }
-        fs.appendFile(`${dir}/${name}.jsx`, res, function(err) {
+        fs.appendFile(filename, res, function(err) {
             if(err) {
                 return console.log(err);
             }
-            console.log(`The file ${dir}/${name}.jsx was saved!`);
+            console.log(`The file ${filename}.jsx was saved!`);
         }); 
     },
     capitalize: function(name) {
