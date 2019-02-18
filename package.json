@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/glaucopater/json2react/issues"
   },
-  "homepage": "https://github.com/glaucopater/json2react#readme"
+  "homepage": "https://github.com/glaucopater/json2react#readme",
+  "dependencies": {
+    "moment": "^2.24.0"
+  }
 }
