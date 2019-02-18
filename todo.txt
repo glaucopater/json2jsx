@@ -1,3 +1,0 @@
-//load json file or content
-//parse json
-//for each entity load templated snippet according to type: entity, list of entity

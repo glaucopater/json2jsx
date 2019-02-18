@@ -1,5 +1,5 @@
 module.exports = {
-    json: {
+    sample: {
         propertyA: "string",
         propertyB: [1, 2, 3],
         propertyC: {
