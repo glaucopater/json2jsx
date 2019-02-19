@@ -1,3 +1,5 @@
+
+
 const fs = require('fs');
 const moment = require('moment');
 const defaultPath = process.cwd();
@@ -80,14 +82,3 @@ module.exports = {
         return capitalizedName; 
     }
 }
-
-if(process.argv[2] && fs.existsSync(process.argv[2])){
-    if (!fs.existsSync(outputDir)){
-        fs.mkdirSync(outputDir);
-    }
-
-    const inputFile = process.argv[2];
-    module.exports.parse(inputFile);
-}
-else 
-    console.log('No input file selected');
