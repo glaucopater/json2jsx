@@ -25,6 +25,6 @@
     "moment": "^2.24.0"
   },
   "bin": {
-    "json2rect": "./cli.js"
+    "json2jsx": "./cli.js"
   }
 }
