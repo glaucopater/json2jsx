@@ -2,9 +2,8 @@ const fs = require('fs');
 const moment = require('moment');
 const defaultPath = process.cwd();
 const statefullComponent = require('./react-templates/statefull-component');
-const statelessComponent = require('./react-templates/stateless-component');
-const data = require('./json_samples/data');
-//const data = require('./json_samples/swapi');
+const statelessComponent = require('./react-templates/stateless-component'); 
+const outputDir = './output';
 
 module.exports = {
     mixData: function (name,child,isChild) {
@@ -13,11 +12,9 @@ module.exports = {
         result = template;
         return result;
     },
-    test: function(){
-        let res = module.exports.mixData("TEST");
-        console.log(res);
-    },
-    parse: function(){
+    parse: function(filename){ 
+        const data = require(filename);
+        if(data){
         const items = Object.keys(data).map( item => {
             let child;
             if(data[item] && typeof data[item] === "object"){
@@ -34,6 +31,7 @@ module.exports = {
                 module.exports.saveToFile(item, child, false);
             }
         });
+        }
     },
     saveToFile: function(name, child, isChild){
         name = module.exports.capitalize(name);
@@ -41,12 +39,10 @@ module.exports = {
             child = module.exports.capitalize(child);
         }
         let res = module.exports.mixData(name,child,isChild);
-        
         const m = moment().format('YYYYMMDD-HHmm');
         if (!fs.existsSync(`${defaultPath}/output/${m}`)){
             fs.mkdirSync(`${defaultPath}/output/${m}`);
         }
-
         let appDir, dir, filename;
         if(isChild){
             appDir = `${defaultPath}/output/${m}/${name}`;
@@ -68,7 +64,6 @@ module.exports = {
         if (!fs.existsSync(appDir)){
             fs.mkdirSync(appDir);
         }
-
         if (!fs.existsSync(dir)){
             fs.mkdirSync(dir);
         }
@@ -84,7 +79,15 @@ module.exports = {
         const capitalizedName =  [first.toUpperCase()].concat(other).join("");
         return capitalizedName; 
     }
-
 }
 
-module.exports.parse();
+if(process.argv[2] && fs.existsSync(process.argv[2])){
+    if (!fs.existsSync(outputDir)){
+        fs.mkdirSync(outputDir);
+    }
+
+    const inputFile = process.argv[2];
+    module.exports.parse(inputFile);
+}
+else 
+    console.log('No input file selected');
