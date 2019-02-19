@@ -1,13 +1,28 @@
 
 
-const fs = require('fs');
-const moment = require('moment');
+const fs = require('fs'); 
 const defaultPath = process.cwd();
-const statefullComponent = require('./react-templates/statefull-component');
-const statelessComponent = require('./react-templates/stateless-component'); 
+const statefullComponent = require('./react-templates/statefull-component'); 
 const outputDir = './output';
 
 module.exports = {
+    getCurrentDate: function() {
+            const dateToken = []; 
+            now = new Date();
+            year = now.getFullYear();
+            dateToken.push(year);
+            month = (now.getMonth() + 1); if (month.length == 1) { month = "0" + month; }
+            dateToken.push(month);
+            day = now.getDate(); if (day.length == 1) { day = "0" + day; }
+            dateToken.push(day);
+            hour = now.getHours(); if (hour.length == 1) { hour = "0" + hour; }
+            dateToken.push(hour);
+            minute = now.getMinutes(); if (minute.length == 1) { minute = "0" + minute; }
+            dateToken.push(minute);
+            second = now.getSeconds(); if (second.length == 1) { second = "0" + second; }
+            dateToken.push(second);
+            return dateToken.join('');
+    },
     mixData: function (name,child,isChild) {
         let result;
         let template = statefullComponent.templateFunction(name,child,isChild);
@@ -41,13 +56,13 @@ module.exports = {
             child = module.exports.capitalize(child);
         }
         let res = module.exports.mixData(name,child,isChild);
-        const m = moment().format('YYYYMMDD-HHmm');
-        if (!fs.existsSync(`${defaultPath}/output/${m}`)){
-            fs.mkdirSync(`${defaultPath}/output/${m}`);
+        const m = module.exports.getCurrentDate();
+        if (!fs.existsSync(`${defaultPath}/${outputDir}/${m}`)){
+            fs.mkdirSync(`${defaultPath}/${outputDir}/${m}`);
         }
         let appDir, dir, filename;
         if(isChild){
-            appDir = `${defaultPath}/output/${m}/${name}`;
+            appDir = `${defaultPath}/${outputDir}/${m}/${name}`;
             if (!fs.existsSync(appDir)){
                 fs.mkdirSync(appDir);
             }

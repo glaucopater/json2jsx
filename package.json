@@ -21,9 +21,6 @@
     "url": "https://github.com/glaucopater/json2jsx/issues"
   },
   "homepage": "https://github.com/glaucopater/json2jsx#readme",
-  "dependencies": {
-    "moment": "^2.24.0"
-  },
   "bin": {
     "json2jsx": "./cli.js"
   }
