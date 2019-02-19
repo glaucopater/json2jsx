@@ -3,8 +3,7 @@ const moment = require('moment');
 const defaultPath = process.cwd();
 const statefullComponent = require('./react-templates/statefull-component');
 const statelessComponent = require('./react-templates/stateless-component');
-const data = require('./json_samples/data');
-//const data = require('./json_samples/swapi');
+const data = require('./json_samples/data'); 
 
 module.exports = {
     mixData: function (name,child,isChild) {

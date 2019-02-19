@@ -1,14 +1,14 @@
 {
-  "name": "json2react",
+  "name": "json2jsx",
   "version": "1.0.0",
-  "description": "A node js library to transform a json view model into a set of components ",
+  "description": "A node js library to transform a json view model into a set of components",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/glaucopater/json2react.git"
+    "url": "git+https://github.com/glaucopater/json2jsx.git"
   },
   "keywords": [
     "json",
@@ -18,9 +18,9 @@
   "author": "Glauco Pater",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/glaucopater/json2react/issues"
+    "url": "https://github.com/glaucopater/json2jsx/issues"
   },
-  "homepage": "https://github.com/glaucopater/json2react#readme",
+  "homepage": "https://github.com/glaucopater/json2jsx#readme",
   "dependencies": {
     "moment": "^2.24.0"
   }
