@@ -1,7 +1,7 @@
 module.exports = {
 templateFunction: function(name,child,isChild){
 const childComponent = !isChild ? `<${child} />` : '';
-const importChildStatement = !isChild ? `import ${child} from './${child}/${child}'` : '';
+const importChildStatement = !isChild && child ? `import ${child} from './${child}/${child}'` : '';
 const className = !isChild ? name : child;
 
 return `import React, { Component } from 'react'; 
