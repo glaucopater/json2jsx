@@ -88,7 +88,7 @@ module.exports = {
             if(err) {
                 return console.log(err);
             }
-            console.log(`The file ${filename}.jsx was saved!`);
+            console.log(`The file ${filename} was saved!`);
         }); 
     },
     capitalize: function(name) {
