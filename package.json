@@ -23,5 +23,8 @@
   "homepage": "https://github.com/glaucopater/json2jsx#readme",
   "dependencies": {
     "moment": "^2.24.0"
+  },
+  "bin": {
+    "json2rect": "./cli.js"
   }
 }
