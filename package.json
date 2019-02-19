@@ -1,6 +1,6 @@
 {
   "name": "json2jsx",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A node js library to transform a json view model into a set of components",
   "main": "index.js",
   "scripts": {
@@ -21,9 +21,6 @@
     "url": "https://github.com/glaucopater/json2jsx/issues"
   },
   "homepage": "https://github.com/glaucopater/json2jsx#readme",
-  "dependencies": {
-    "moment": "^2.24.0"
-  },
   "bin": {
     "json2jsx": "./cli.js"
   }
