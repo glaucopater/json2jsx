@@ -66,8 +66,10 @@ At the moment input file(s) must have .json extension otherwise this will raise 
 
 Test
 ===
-Some Sample json files I have included for your convenience are coming from the following Open Json API:
 
+I have included some sample json files in order to test different scenarios. They are stored inside the module folder (node_modules/json2jsx/json_samples/)
+
+The sources are:
 * [https://swapi.co/](The Star Wars API)
 * [https://anapioficeandfire.com](Game of Thrones API) 
 * [https://pokeapi.co/api/v2/pokemon/ditto](Pokemonm API)
