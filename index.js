@@ -1,6 +1,7 @@
 
 
 const fs = require('fs'); 
+const path = require('path'); 
 const defaultPath = process.cwd();
 const statefullComponent = require('./react-templates/statefull-component'); 
 const outputDir = './output';
@@ -30,8 +31,12 @@ module.exports = {
         return result;
     },
     parse: function(filename){ 
-        const data = require(filename);
+        let data = require(filename);
+        const baseFilename = path.basename(filename,'.json');
+
         if(data){
+        //for root array just get the first element 
+        data = data.constructor !== Array ? data : data[0];
         const items = Object.keys(data).map( item => {
             let child;
             if(data[item] && typeof data[item] === "object"){
@@ -42,21 +47,21 @@ module.exports = {
                         }
                     });
                     if(child){
-                        module.exports.saveToFile(item,child,true);
+                        module.exports.saveToFile(item, child, true, baseFilename);
                     }
                 }
-                module.exports.saveToFile(item, child, false);
+                module.exports.saveToFile(item, child, false, baseFilename);
             }
         });
         }
     },
-    saveToFile: function(name, child, isChild){
+    saveToFile: function(name, child, isChild,sourcefilename){
         name = module.exports.capitalize(name);
         if(child){
             child = module.exports.capitalize(child);
         }
         let res = module.exports.mixData(name,child,isChild);
-        const m = module.exports.getCurrentDate();
+        const m = module.exports.getCurrentDate() + '_' + sourcefilename;
         if (!fs.existsSync(`${defaultPath}/${outputDir}/${m}`)){
             fs.mkdirSync(`${defaultPath}/${outputDir}/${m}`);
         }
