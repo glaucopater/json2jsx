@@ -69,7 +69,7 @@ Options
 Default options are the following ones:
 
 * outputDir: "./output"
-* silentMode": true
+* silentMode: true
 * defaultComponentType: "statefull"
 * defaultRootComponentName: "App"
 
