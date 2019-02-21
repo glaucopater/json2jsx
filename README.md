@@ -21,7 +21,6 @@ This will create a folder structure inside the working directory as follows:
 * /output/%datetime%/Component1
 * /output/%datetime%/Component2
 * /output/%datetime%/Component3/SubComponent1
-...
 
 
 Plus a component container (default is "App"), containing the first component found.
