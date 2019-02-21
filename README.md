@@ -75,13 +75,13 @@ Default options are the following ones:
 Test
 ===
 
-I have included some sample json files in order to test different scenarios. They are stored inside the module folder (node_modules/json2jsx/json_samples/
+I have included some sample json files in order to test different scenarios. They are stored inside the module folder (node_modules/json2jsx/json_samples/)
 
 The sources are:
-* [https://swapi.co/] The Star Wars API
-* [https://anapioficeandfire.com] Game of Thrones API) 
-* [https://pokeapi.co/api/v2/pokemon/ditto] Pokemon API
-* [http://api.open-notify.org/iss-now.json] ISS Position API 
+* [The Star Wars API](https://swapi.co/) 
+* [Game of Thrones API](https://anapioficeandfire.com)
+* [Pokemon API](https://pokeapi.co/api/v2/pokemon/ditto) 
+* [ISS Position API](http://api.open-notify.org/iss-now.json)
 
 You can find other APIs here:
 * https://shkspr.mobi/blog/2016/05/easy-apis-without-authentication
