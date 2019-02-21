@@ -18,12 +18,10 @@ json2jsx data.json
 
 This will create a folder structure inside the working directory as follows:
 
-* /output/%datetime%/Component1
-* /output/%datetime%/Component2
-* /output/%datetime%/Component3/SubComponent1
-
-
-Plus a component container (default is "App"), containing the first component found.
+* /output/%datetime%_%data%/App.jsx
+* /output/%datetime%_%data%/Component1
+* /output/%datetime%_%data%/Component2
+* /output/%datetime%_%data%/Component3/SubComponent1
 
 Every state-full react component (.jsx files) will be generated according to the existing template:
 
