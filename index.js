@@ -4,14 +4,13 @@ const fs = require('fs');
 const path = require('path'); 
 const defaultPath = process.cwd();
 const statefullComponent = require('./react-templates/statefull-component'); 
-const outputDir = './output';
+const { outputDir, silentMode} = require('./options.json'); 
 
 module.exports = {
     getCurrentDate: function() {
             const dateToken = []; 
-            now = new Date();
-            year = now.getFullYear();
-            dateToken.push(year);
+            now = new Date(); 
+            dateToken.push(now.getFullYear());
             month = (now.getMonth() + 1); if (month.length == 1) { month = "0" + month; }
             dateToken.push(month);
             day = now.getDate(); if (day.length == 1) { day = "0" + day; }
@@ -82,7 +81,6 @@ module.exports = {
             dir = `${appDir}/${name}`;
             filename = `${dir}/${name}.jsx`;
         }
-            
         if (!fs.existsSync(appDir)){
             fs.mkdirSync(appDir);
         }
@@ -93,7 +91,9 @@ module.exports = {
             if(err) {
                 return console.log(err);
             }
-            console.log(`The file ${filename} was saved!`);
+            if(!silentMode){
+                console.log(`The file ${filename} was saved!`);
+            }
         }); 
     },
     capitalize: function(name) {
