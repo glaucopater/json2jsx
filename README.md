@@ -77,7 +77,7 @@ Default options are the following ones:
 Test
 ===
 
-I have included some sample json files in order to test different scenarios. They are stored inside the module folder (node_modules/json2jsx/json_samples/)
+I have included some sample json files in order to test different scenarios. They are stored inside the module folder (node_modules/json2jsx/json_samples/
 
 The sources are:
 * [https://swapi.co/] The Star Wars API
