@@ -80,10 +80,10 @@ Test
 I have included some sample json files in order to test different scenarios. They are stored inside the module folder (node_modules/json2jsx/json_samples/)
 
 The sources are:
-* [https://swapi.co/](The Star Wars API)
-* [https://anapioficeandfire.com](Game of Thrones API) 
-* [https://pokeapi.co/api/v2/pokemon/ditto](Pokemonm API)
-* [http://api.open-notify.org/iss-now.json](ISS Position API) 
+* [https://swapi.co/] The Star Wars API
+* [https://anapioficeandfire.com] Game of Thrones API) 
+* [https://pokeapi.co/api/v2/pokemon/ditto] Pokemon API
+* [http://api.open-notify.org/iss-now.json] ISS Position API 
 
 You can find other APIs here:
 * https://shkspr.mobi/blog/2016/05/easy-apis-without-authentication
