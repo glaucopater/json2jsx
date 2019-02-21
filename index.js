@@ -4,7 +4,8 @@ const fs = require('fs');
 const path = require('path'); 
 const defaultPath = process.cwd();
 const statefullComponent = require('./react-templates/statefull-component'); 
-const { outputDir, silentMode} = require('./options.json'); 
+const statelessComponent = require('./react-templates/stateless-component'); 
+const { outputDir, silentMode, defaultComponentType, defaultRootComponentName } = require('./options.json'); 
 
 module.exports = {
     getCurrentDate: function() {
@@ -23,20 +24,29 @@ module.exports = {
             dateToken.push(second);
             return dateToken.join('');
     },
-    mixData: function (name,child,isChild) {
-        let result;
-        let template = statefullComponent.templateFunction(name,child,isChild);
-        result = template;
-        return result;
+    getComponentTemplate: function (name, child, isChild, componentType) {
+        let template;
+        switch(componentType){
+            case "statefull": template = statefullComponent.templateFunction(name,child,isChild); break;
+            case "stateless": template = statelessComponent.templateFunction(name,child,isChild); break;
+            default: !silentMode && console.warn("No component type defined");
+        }
+        return template;
     },
     parse: function(filename){ 
         let data = require(filename);
         const baseFilename = path.basename(filename,'.json');
-
         if(data){
         //for root array just get the first element 
         data = data.constructor !== Array ? data : data[0];
+
+        let rootCreated = false;
         const items = Object.keys(data).map( item => {
+            //create root container
+            if(!rootCreated && typeof  data[item] === "object"){
+                module.exports.saveToFile(defaultRootComponentName, item, false, baseFilename, "stateless", true);
+                rootCreated = true;
+            }
             let child;
             if(data[item] && typeof data[item] === "object"){
                 if(data[item].constructor !== Array){
@@ -46,26 +56,31 @@ module.exports = {
                         }
                     });
                     if(child){
-                        module.exports.saveToFile(item, child, true, baseFilename);
+                        module.exports.saveToFile(item, child, true, baseFilename, defaultComponentType);
                     }
                 }
-                module.exports.saveToFile(item, child, false, baseFilename);
+                module.exports.saveToFile(item, child, false, baseFilename, defaultComponentType);
             }
         });
         }
     },
-    saveToFile: function(name, child, isChild,sourcefilename){
+    saveToFile: function(name, child, isChild, sourcefilename, componentType, isRoot){
         name = module.exports.capitalize(name);
         if(child){
             child = module.exports.capitalize(child);
         }
-        let res = module.exports.mixData(name,child,isChild);
+        let res = module.exports.getComponentTemplate(name, child, isChild, componentType);
         const m = module.exports.getCurrentDate() + '_' + sourcefilename;
         if (!fs.existsSync(`${defaultPath}/${outputDir}/${m}`)){
             fs.mkdirSync(`${defaultPath}/${outputDir}/${m}`);
         }
         let appDir, dir, filename;
-        if(isChild){
+        if(isRoot){
+            appDir = `${defaultPath}/output/${m}`;
+            dir = `${appDir}/`;
+            filename = `${dir}/${name}.jsx`;
+        }
+        else if(isChild){
             appDir = `${defaultPath}/${outputDir}/${m}/${name}`;
             if (!fs.existsSync(appDir)){
                 fs.mkdirSync(appDir);
@@ -89,7 +104,7 @@ module.exports = {
         }
         fs.appendFile(filename, res, function(err) {
             if(err) {
-                return console.log(err);
+                return console.warn(err);
             }
             if(!silentMode){
                 console.log(`The file ${filename} was saved!`);

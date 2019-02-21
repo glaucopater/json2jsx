@@ -1,4 +1,6 @@
 {
     "outputDir": "./output",
-    "silentMode": true
+    "silentMode": true,
+    "defaultComponentType": "statefull",
+    "defaultRootComponentName": "App"
 }
