@@ -18,11 +18,10 @@ json2jsx data.json
 
 This will create a folder structure inside the working directory as follows:
 
-* /output/%datetime%/Component1
-* /output/%datetime%/Component2
-* /output/%datetime%/Component3/SubComponent1
-...
-Plus a component container (default is "App"), containing the first component found.
+* /output/%datetime%_%data%/App.jsx
+* /output/%datetime%_%data%/Component1/Component1.jsx
+* /output/%datetime%_%data%/Component2/Component2.jsx
+* /output/%datetime%_%data%/Component3/SubComponent1/SubComponent1.jsx
 
 Every state-full react component (.jsx files) will be generated according to the existing template:
 
@@ -76,13 +75,13 @@ Default options are the following ones:
 Test
 ===
 
-I have included some sample json files in order to test different scenarios. They are stored inside the module folder (node_modules/json2jsx/json_samples/)
+I have included some sample json files in order to test different scenarios. They are stored inside the module folder (node_modules/json2jsx/json_samples/
 
 The sources are:
-* [https://swapi.co/](The Star Wars API)
-* [https://anapioficeandfire.com](Game of Thrones API) 
-* [https://pokeapi.co/api/v2/pokemon/ditto](Pokemonm API)
-* [http://api.open-notify.org/iss-now.json](ISS Position API) 
+* [https://swapi.co/] The Star Wars API
+* [https://anapioficeandfire.com] Game of Thrones API) 
+* [https://pokeapi.co/api/v2/pokemon/ditto] Pokemon API
+* [http://api.open-notify.org/iss-now.json] ISS Position API 
 
 You can find other APIs here:
 * https://shkspr.mobi/blog/2016/05/easy-apis-without-authentication
