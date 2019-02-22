@@ -3,6 +3,7 @@ const path = require('path');
 const defaultPath = process.cwd(); 
 const {
     outputDir,
+    templatesFolder,
     silentMode,
     defaultComponentType,
     defaultRootComponentName
@@ -56,7 +57,7 @@ module.exports = {
         return dateToken.join('');
     },
     getComponentTemplate: function (name, child, isChild, componentType) {
-        const template = fs.readFileSync(`./react-templates/${componentType}-component.jsx`, 'UTF8');
+        const template = fs.readFileSync(`${templatesFolder}/${componentType}-component.jsx`, 'UTF8');
         name = !isChild ? name : child;
         const childComponent = !isChild && child && child !== "undefined" ? `<${child} />` : '';
         const importChildStatement = !isChild && child && child !== "undefined" ? `import ${child} from './${child}/${child}';` : '';
