@@ -1,5 +1,6 @@
 {
     "outputDir": "./output",
+    "templatesFolder": "./react-templates",
     "silentMode": true,
     "defaultComponentType": "statefull",
     "defaultRootComponentName": "App"
