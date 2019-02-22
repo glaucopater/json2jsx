@@ -9,6 +9,10 @@ const {
     defaultRootComponentName
 } = require('./options.json');
 
+require.extensions['.jsx'] = function (module, filename) {
+    module.exports = fs.readFileSync(filename, 'utf8');
+};
+
 module.exports = {
 
     _recursive_rendering: function (string, context, stack) {
@@ -57,7 +61,7 @@ module.exports = {
         return dateToken.join('');
     },
     getComponentTemplate: function (name, child, isChild, componentType) {
-        const template = fs.readFileSync(`${templatesFolder}/${componentType}-component.jsx`, 'UTF8');
+        const template = require(`${templatesFolder}/${componentType}-component.jsx`, 'UTF8');
         name = !isChild ? name : child;
         const childComponent = !isChild && child && child !== "undefined" ? `<${child} />` : '';
         const importChildStatement = !isChild && child && child !== "undefined" ? `import ${child} from './${child}/${child}';` : '';
