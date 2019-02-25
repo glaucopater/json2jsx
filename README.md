@@ -6,9 +6,9 @@ Abstract and heuristic assumption
 In every project or prototype using React JS I found, a json structure is always present.
 Generally the mapping of the view model is not 100% reflected into the UI, but many parts of the structures are.
 
-I.e. if inside a json file there is an array it is very likely that on UI side there will be a collection of sub-components.
+I.e. if inside a json file there is an array of objects, it is very likely that on UI side there will be a collection of sub components.
 
-Json ---> Jsx File(s) with same structure found inside the Json
+Json --> Jsx file(s) with same structure found inside the Json
 
 
 
