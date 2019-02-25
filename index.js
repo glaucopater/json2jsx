@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { recursive_rendering , getCurrentDate, capitalize  } = require('./helpers/functions');
+const { recursive_rendering , getCurrentDate, capitalize, createDir  } = require('./helpers/functions');
 const defaultPath = process.cwd(); 
 const {
     outputDir,
@@ -77,25 +77,17 @@ module.exports = {
             filename = `${dir}/${name}.jsx`;
         } else if (isChild) {
             appDir = `${defaultPath}/${outputDir}/${m}/${name}`;
-            if (!fs.existsSync(appDir)) {
-                fs.mkdirSync(appDir);
-            }
+            createDir(appDir);
             dir = `${appDir}/${child}`;
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir);
-            }
+            createDir(dir);
             filename = `${dir}/${child}.jsx`;
         } else {
-            appDir = `${defaultPath}/output/${m}`;
+            appDir = `${defaultPath}/${outputDir}/${m}`;
             dir = `${appDir}/${name}`;
             filename = `${dir}/${name}.jsx`;
         }
-        if (!fs.existsSync(appDir)) {
-            fs.mkdirSync(appDir);
-        }
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
-        }
+        createDir(appDir);
+        createDir(dir);
         fs.appendFile(filename, res, function (err) {
             if (err) {
                 return console.warn(err);

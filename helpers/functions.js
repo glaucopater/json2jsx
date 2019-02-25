@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 module.exports = {
     recursive_rendering: function (string, context, stack) {
         for (var key in context) {
@@ -48,5 +50,10 @@ module.exports = {
         const [first, ...other] = name;
         const capitalizedName = [first.toUpperCase()].concat(other).join("");
         return capitalizedName;
+    },
+    createDir: function(dirName) {
+        if (!fs.existsSync(dirName)) {
+            fs.mkdirSync(dirName);
+        }
     }
 }
