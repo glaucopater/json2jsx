@@ -86,3 +86,8 @@ The sources are:
 You can find other APIs here:
 * https://shkspr.mobi/blog/2016/05/easy-apis-without-authentication
 * https://www.diycode.cc/projects/toddmotto/public-apis
+
+Thanks to 
+[andrea falzetti] (
+http://andreafalzetti.github.io/blog/2016/10/22/render-es6-javascript-template-literals-contained-variable.html)
+for letting me skip the usage of eval/new Function

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { recursive_rendering , getCurrentDate, capitalize  } = require('./helpers/functions');
 const defaultPath = process.cwd(); 
 const {
     outputDir,
@@ -14,60 +15,13 @@ require.extensions['.jsx'] = function (module, filename) {
 };
 
 module.exports = {
-
-    _recursive_rendering: function (string, context, stack) {
-        for (var key in context) {
-            if (context.hasOwnProperty(key)) {
-                if (typeof context[key] === "object") {
-                    string = _recursive_rendering(string, context[key], (stack ? stack + '.' : '') + key);
-                } else {
-                    var find = '\\$\\{\\s*' + (stack ? stack + '.' : '') + key + '\\s*\\}';
-                    var re = new RegExp(find, 'g');
-                    string = string.replace(re, context[key]);
-                }
-            }
-        }
-        return string;
-    },
-    getCurrentDate: function () {
-        const dateToken = [];
-        now = new Date();
-        dateToken.push(now.getFullYear());
-        month = (now.getMonth() + 1);
-        if (month.length == 1) {
-            month = "0" + month;
-        }
-        dateToken.push(month);
-        day = now.getDate();
-        if (day.length == 1) {
-            day = "0" + day;
-        }
-        dateToken.push(day);
-        hour = now.getHours();
-        if (hour.length == 1) {
-            hour = "0" + hour;
-        }
-        dateToken.push(hour);
-        minute = now.getMinutes();
-        if (minute.length == 1) {
-            minute = "0" + minute;
-        }
-        dateToken.push(minute);
-        second = now.getSeconds();
-        if (second.length == 1) {
-            second = "0" + second;
-        }
-        dateToken.push(second);
-        return dateToken.join('');
-    },
     getComponentTemplate: function (name, child, isChild, componentType) {
         const template = require(`${templatesFolder}/${componentType}-component.jsx`, 'UTF8');
         name = !isChild ? name : child;
         const childComponent = !isChild && child && child !== "undefined" ? `<${child} />` : '';
         const importChildStatement = !isChild && child && child !== "undefined" ? `import ${child} from './${child}/${child}';` : '';
         const className = !isChild ? name : child;
-
-        return module.exports._recursive_rendering(template, {
+        return recursive_rendering(template, {
             name: name,
             child: child,
             childComponent: childComponent,
@@ -96,7 +50,7 @@ module.exports = {
                             if (data[item][subitem] && typeof data[item][subitem] === "object") {
                                 child = subitem;
                             }
-                        });
+                        });  
                         if (child) {
                             module.exports.saveToFile(item, child, true, baseFilename, defaultComponentType);
                         }
@@ -107,12 +61,12 @@ module.exports = {
         }
     },
     saveToFile: function (name, child, isChild, sourcefilename, componentType, isRoot) {
-        name = module.exports.capitalize(name);
+        name = capitalize(name);
         if (child) {
-            child = module.exports.capitalize(child);
+            child = capitalize(child);
         }
         let res = module.exports.getComponentTemplate(name, child, isChild, componentType);
-        const m = module.exports.getCurrentDate() + '_' + sourcefilename;
+        const m = getCurrentDate() + '_' + sourcefilename;
         if (!fs.existsSync(`${defaultPath}/${outputDir}/${m}`)) {
             fs.mkdirSync(`${defaultPath}/${outputDir}/${m}`);
         }
@@ -150,10 +104,5 @@ module.exports = {
                 console.log(`The file ${filename} was saved!`);
             }
         });
-    },
-    capitalize: function (name) {
-        const [first, ...other] = name;
-        const capitalizedName = [first.toUpperCase()].concat(other).join("");
-        return capitalizedName;
     }
 }
