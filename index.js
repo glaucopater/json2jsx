@@ -14,7 +14,7 @@ const {
 require.extensions['.jsx'] = function (module, filename) {
     module.exports = fs.readFileSync(filename, 'utf8');
 };
- 
+
 
 module.exports = {
     getComponentTag: function(componentName){
@@ -26,12 +26,12 @@ module.exports = {
     getDataFromFile: function(filename){
         return { baseFilename: path.basename(filename, '.json'), data: require(filename) }; 
     },
-    writeComponent: function(data, baseFilename, componentName, componentType = defaultComponentType, parentComponentName, isRoot, depth) { 
-        if (data) { 
+    writeComponent: function(data, baseFilename, componentName, componentType = defaultComponentType, parentComponentName, depth, parentFilename) { 
+        if (data) {  
             //for root array just get the first element 
-            data = data.constructor !== Array ? data : (data[0] ? data[0] : []);
-            if (data.length === 0){
-                return;
+            //data = data.constructor !== Array ? data : (data[0] ? data[0] : []);
+            if(data.constructor === Array){  
+                data = data.constructor !== Array ? data : (data[0] ? data[0] : []);
             }
             let dataProps = [];
             let dataChildren = []; 
@@ -55,17 +55,22 @@ module.exports = {
             let appDir, dir, filename;
             const outputSubdir  = getCurrentDate() + '_' + baseFilename;
             componentName = capitalize(componentName);
-            if (parentComponentName) {
+            if (parentComponentName) { 
                 if(depth === 1) { 
                     appDir = `${defaultPath}/${outputDir}/${outputSubdir}`;     
-                } else
+                } else  {
                     appDir = `${defaultPath}/${outputDir}/${outputSubdir}/${parentComponentName}`;
+                }
+                //in testing
+                if(depth > 2){
+                    appDir = path.dirname(parentFilename);
+                }
                 createDir(appDir);
                 dir = `${appDir}/${componentName}`;
                 createDir(dir);
                 filename = `${dir}/${componentName}.jsx`;
             } 
-            else { 
+            else {  
                 appDir = `${defaultPath}/${outputDir}/${outputSubdir}`;
                 dir = `${appDir}/`;
                 filename = `${dir}/${componentName}.jsx`;
@@ -81,13 +86,13 @@ module.exports = {
                 }
             });  
             dataChildren.map(child => { 
-                module.exports.writeComponent(data[child], baseFilename, child, defaultComponentType, componentName, false, (depth + 1));
+                module.exports.writeComponent(data[child], baseFilename, child, defaultComponentType, componentName, (depth + 1), filename);
             });
         }
     },
     getRootComponent: function(componentName, filename){
         const { baseFilename: baseFilename, data: data } =  module.exports.getDataFromFile(filename);
         componentName = capitalize(componentName);
-        module.exports.writeComponent(data, baseFilename, componentName, "stateless", null, true, 0);
+        module.exports.writeComponent(data, baseFilename, componentName, "stateless", null, 0, filename);
     } 
 }

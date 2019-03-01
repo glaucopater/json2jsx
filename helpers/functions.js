@@ -53,8 +53,7 @@ module.exports = {
     },
     createDir: function(dirName) {
         if (!fs.existsSync(dirName)) {
-            fs.mkdirSync(dirName);
-            console.log(dirName, " created");
+            fs.mkdirSync(dirName); 
         }
     }
 }
