@@ -7,8 +7,7 @@ const {
     outputDir,
     templatesFolder,
     silentMode,
-    defaultComponentType,
-    defaultRootComponentName
+    defaultComponentType
 } = require('./options.json');
 
 require.extensions['.jsx'] = function (module, filename) {
@@ -19,6 +18,9 @@ require.extensions['.jsx'] = function (module, filename) {
 module.exports = {
     getComponentTag: function(componentName){
         return `<${capitalize(componentName)} />`;
+    },
+    getProp: function(prop){
+        return `<span className='${capitalize(prop.name)}'>{props.${prop.name}}</span>`;
     },
     getComponentImport: function(componentName){ 
         return `import ${capitalize(componentName)} from './${capitalize(componentName)}/${capitalize(componentName)}';`
@@ -40,7 +42,7 @@ module.exports = {
                     case "bool":
                     case "string":
                     case "number":
-                    case "datetime": dataProps.push(item); break;
+                    case "datetime": dataProps.push({ name: item, value: data[item] }); break;
                     case "object": dataChildren.push(item); break;
                     default: break;
                 }
@@ -50,7 +52,8 @@ module.exports = {
                 name: capitalize(componentName), 
                 childComponent: dataChildren.map(child => { return module.exports.getComponentTag(child) }).join(''),
                 className: capitalize(componentName),
-                importChildStatement: dataChildren.map(child => { return module.exports.getComponentImport(child) }).join(os.EOL)
+                importChildStatement: dataChildren.map(child => { return module.exports.getComponentImport(child) }).join(os.EOL),
+                props: dataProps.map(prop => { return module.exports.getProp(prop) }).join(os.EOL)
             });
             let appDir, dir, filename;
             const outputSubdir  = getCurrentDate() + '_' + baseFilename;
