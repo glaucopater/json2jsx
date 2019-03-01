@@ -5,7 +5,7 @@ module.exports = {
         for (var key in context) {
             if (context.hasOwnProperty(key)) {
                 if (typeof context[key] === "object") {
-                    string = recursive_rendering(string, context[key], (stack ? stack + '.' : '') + key);
+                    string = module.exports.recursive_rendering(string, context[key], (stack ? stack + '.' : '') + key);
                 } else {
                     var find = '\\$\\{\\s*' + (stack ? stack + '.' : '') + key + '\\s*\\}';
                     var re = new RegExp(find, 'g');
@@ -54,6 +54,7 @@ module.exports = {
     createDir: function(dirName) {
         if (!fs.existsSync(dirName)) {
             fs.mkdirSync(dirName);
+            console.log(dirName, " created");
         }
     }
 }

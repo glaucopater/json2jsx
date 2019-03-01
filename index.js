@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const { recursive_rendering , getCurrentDate, capitalize, createDir  } = require('./helpers/functions');
+var os = require("os");
+const { recursive_rendering , getCurrentDate, capitalize, createDir, log  } = require('./helpers/functions');
 const defaultPath = process.cwd(); 
 const {
     outputDir,
@@ -13,88 +14,80 @@ const {
 require.extensions['.jsx'] = function (module, filename) {
     module.exports = fs.readFileSync(filename, 'utf8');
 };
+ 
 
 module.exports = {
-    getComponentTemplate: function (name, child, isChild, componentType) {
-        const template = require(`${templatesFolder}/${componentType}-component.jsx`, 'UTF8');
-        name = !isChild ? name : child;
-        const childComponent = !isChild && child && child !== "undefined" ? `<${child} />` : '';
-        const importChildStatement = !isChild && child && child !== "undefined" ? `import ${child} from './${child}/${child}';` : '';
-        const className = !isChild ? name : child;
-        return recursive_rendering(template, {
-            name: name,
-            child: child,
-            childComponent: childComponent,
-            className: className,
-            importChildStatement: importChildStatement
-        });
+    getComponentTag: function(componentName){
+        return `<${capitalize(componentName)} />`;
     },
-    parse: function (filename) {
-        let data = require(filename);
-        const baseFilename = path.basename(filename, '.json');
-        if (data) {
+    getComponentImport: function(componentName){ 
+        return `import ${capitalize(componentName)} from './${capitalize(componentName)}/${capitalize(componentName)}';`
+    },
+    getDataFromFile: function(filename){
+        return { baseFilename: path.basename(filename, '.json'), data: require(filename) }; 
+    },
+    writeComponent: function(data, baseFilename, componentName, componentType = defaultComponentType, parentComponentName, isRoot, depth) { 
+        if (data) { 
             //for root array just get the first element 
-            data = data.constructor !== Array ? data : data[0];
-
-            let rootCreated = false;
+            data = data.constructor !== Array ? data : (data[0] ? data[0] : []);
+            if (data.length === 0){
+                return;
+            }
+            let dataProps = [];
+            let dataChildren = []; 
             const items = Object.keys(data).map(item => {
-                //create root container
-                if (!rootCreated && typeof data[item] === "object") {
-                    module.exports.saveToFile(defaultRootComponentName, item, false, baseFilename, "stateless", true);
-                    rootCreated = true;
+                switch(typeof data[item]){
+                    case "bool":
+                    case "string":
+                    case "number":
+                    case "datetime": dataProps.push(item); break;
+                    case "object": dataChildren.push(item); break;
+                    default: break;
                 }
-                let child;
-                if (data[item] && typeof data[item] === "object") {
-                    if (data[item].constructor !== Array) {
-                        Object.keys(data[item]).map(subitem => {
-                            if (data[item][subitem] && typeof data[item][subitem] === "object") {
-                                child = subitem;
-                            }
-                        });  
-                        if (child) {
-                            module.exports.saveToFile(item, child, true, baseFilename, defaultComponentType);
-                        }
-                    }
-                    module.exports.saveToFile(item, child, false, baseFilename, defaultComponentType);
+            });
+            const template = require(`${templatesFolder}/${componentType}-component.jsx`, 'UTF8'); 
+            const component = recursive_rendering(template, {
+                name: capitalize(componentName), 
+                childComponent: dataChildren.map(child => { return module.exports.getComponentTag(child) }).join(''),
+                className: capitalize(componentName),
+                importChildStatement: dataChildren.map(child => { return module.exports.getComponentImport(child) }).join(os.EOL)
+            });
+            let appDir, dir, filename;
+            const outputSubdir  = getCurrentDate() + '_' + baseFilename;
+            componentName = capitalize(componentName);
+            if (parentComponentName) {
+                if(depth === 1) { 
+                    appDir = `${defaultPath}/${outputDir}/${outputSubdir}`;     
+                } else
+                    appDir = `${defaultPath}/${outputDir}/${outputSubdir}/${parentComponentName}`;
+                createDir(appDir);
+                dir = `${appDir}/${componentName}`;
+                createDir(dir);
+                filename = `${dir}/${componentName}.jsx`;
+            } 
+            else { 
+                appDir = `${defaultPath}/${outputDir}/${outputSubdir}`;
+                dir = `${appDir}/`;
+                filename = `${dir}/${componentName}.jsx`;
+                createDir(appDir);
+                createDir(dir);
+            }
+            fs.appendFile(filename, component, function (err) {
+                if (err) {
+                    return console.warn(err);
                 }
+                if (!silentMode) {
+                    console.log(`The file ${filename} was created!`);
+                }
+            });  
+            dataChildren.map(child => { 
+                module.exports.writeComponent(data[child], baseFilename, child, defaultComponentType, componentName, false, (depth + 1));
             });
         }
     },
-    saveToFile: function (name, child, isChild, sourcefilename, componentType, isRoot) {
-        name = capitalize(name);
-        if (child) {
-            child = capitalize(child);
-        }
-        let res = module.exports.getComponentTemplate(name, child, isChild, componentType);
-        const m = getCurrentDate() + '_' + sourcefilename;
-        if (!fs.existsSync(`${defaultPath}/${outputDir}/${m}`)) {
-            fs.mkdirSync(`${defaultPath}/${outputDir}/${m}`);
-        }
-        let appDir, dir, filename;
-        if (isRoot) {
-            appDir = `${defaultPath}/output/${m}`;
-            dir = `${appDir}/`;
-            filename = `${dir}/${name}.jsx`;
-        } else if (isChild) {
-            appDir = `${defaultPath}/${outputDir}/${m}/${name}`;
-            createDir(appDir);
-            dir = `${appDir}/${child}`;
-            createDir(dir);
-            filename = `${dir}/${child}.jsx`;
-        } else {
-            appDir = `${defaultPath}/${outputDir}/${m}`;
-            dir = `${appDir}/${name}`;
-            filename = `${dir}/${name}.jsx`;
-        }
-        createDir(appDir);
-        createDir(dir);
-        fs.appendFile(filename, res, function (err) {
-            if (err) {
-                return console.warn(err);
-            }
-            if (!silentMode) {
-                console.log(`The file ${filename} was saved!`);
-            }
-        });
-    }
+    getRootComponent: function(componentName, filename){
+        const { baseFilename: baseFilename, data: data } =  module.exports.getDataFromFile(filename);
+        componentName = capitalize(componentName);
+        module.exports.writeComponent(data, baseFilename, componentName, "stateless", null, true, 0);
+    } 
 }
