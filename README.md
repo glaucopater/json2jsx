@@ -1,5 +1,5 @@
 # Json2jsx
-A node js library to transform a json view model (simple .json file) into a set of statefull components.
+A node js library to transform a json view model (plain .json file) into a set of statefull components.
 
 Abstract and heuristic assumption
 ===
@@ -25,6 +25,18 @@ This will create a folder structure inside the working directory as follows:
 
 Every state-full react component (.jsx files) will be generated according to the existing template:
 
+For a json with this structure:
+
+"game_indices": [{
+    "game_index": 132,
+    "version": {
+        "name": "white-2",
+        "url": "https://pokeapi.co/api/v2/version/22/"
+    }
+}
+
+The output component will be:
+
 ```javascript
 import React, { Component } from 'react'; 
 
@@ -41,7 +53,26 @@ export default class Game_indices extends Component {
     }
 }
 ```
-or
+
+or for a json with this structure
+
+{
+    "sample": {
+      "propertyA": "string",
+      "propertyB": [
+        1,
+        2,
+        3
+      ],
+      "propertyC": {
+        "subProperty1": 123,
+        "subProperty2": "abc"
+      }
+    }
+  }
+
+The output component will be:
+
 ```javascript
 import React, { Component } from 'react'; 
 import PropertyC from './PropertyC/PropertyC';
