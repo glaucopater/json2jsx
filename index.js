@@ -1,100 +1,187 @@
 const fs = require('fs');
 const path = require('path');
-const { recursive_rendering , getCurrentDate, capitalize, createDir  } = require('./helpers/functions');
-const defaultPath = process.cwd(); 
+var os = require("os");
+const {
+    recursive_rendering,
+    getCurrentDate,
+    capitalize,
+    createDir,
+    pascalCase
+} = require('./helpers/functions');
+const defaultPath = process.cwd();
+const prettier = require("prettier");
 const {
     outputDir,
     templatesFolder,
     silentMode,
-    defaultComponentType,
-    defaultRootComponentName
+    defaultComponentType
 } = require('./options.json');
 
 require.extensions['.jsx'] = function (module, filename) {
     module.exports = fs.readFileSync(filename, 'utf8');
 };
 
+
+const currentDate = getCurrentDate();
+
 module.exports = {
-    getComponentTemplate: function (name, child, isChild, componentType) {
-        const template = require(`${templatesFolder}/${componentType}-component.jsx`, 'UTF8');
-        name = !isChild ? name : child;
-        const childComponent = !isChild && child && child !== "undefined" ? `<${child} />` : '';
-        const importChildStatement = !isChild && child && child !== "undefined" ? `import ${child} from './${child}/${child}';` : '';
-        const className = !isChild ? name : child;
-        return recursive_rendering(template, {
-            name: name,
-            child: child,
-            childComponent: childComponent,
-            className: className,
-            importChildStatement: importChildStatement
-        });
+    getComponentTag: function (componentName) {
+        return `<${pascalCase(componentName)} />`;
     },
-    parse: function (filename) {
-        let data = require(filename);
-        const baseFilename = path.basename(filename, '.json');
+    getProp: function (prop, componentType) {
+        if (componentType === "statefull")
+            return `<span className='${capitalize(prop.name)}'>{this.props.${prop.name}}</span>`;
+        else
+            return `<span className='${capitalize(prop.name)}'>{props.${prop.name}}</span>`;
+    },
+    getComponentImport: function (componentName) {
+        return `import ${pascalCase(componentName)} from './${pascalCase(componentName)}/${pascalCase(componentName)}';`
+    },
+    getDataFromFile: function (filename) {
+        return {
+            baseFilename: path.basename(filename, '.json'),
+            data: require(filename)
+        };
+    },
+    writeComponent: function (data, baseFilename, componentName, componentType = defaultComponentType, parentComponentName, depth, parentFilename) {
         if (data) {
             //for root array just get the first element 
-            data = data.constructor !== Array ? data : data[0];
 
-            let rootCreated = false;
-            const items = Object.keys(data).map(item => {
-                //create root container
-                if (!rootCreated && typeof data[item] === "object") {
-                    module.exports.saveToFile(defaultRootComponentName, item, false, baseFilename, "stateless", true);
-                    rootCreated = true;
-                }
-                let child;
-                if (data[item] && typeof data[item] === "object") {
-                    if (data[item].constructor !== Array) {
-                        Object.keys(data[item]).map(subitem => {
-                            if (data[item][subitem] && typeof data[item][subitem] === "object") {
-                                child = subitem;
-                            }
-                        });  
-                        if (child) {
-                            module.exports.saveToFile(item, child, true, baseFilename, defaultComponentType);
+            if (!parentComponentName && data.constructor === Array) {
+                data = data.constructor !== Array ? data : (data[0] ? data[0] : []);
+            }
+            if (typeof data === "object") {
+                let dataProps = [];
+                let dataChildren = [];
+                if (data.constructor !== Array) {
+                    Object.keys(data).map(item => {
+                        switch (typeof data[item]) {
+                            case "bool":
+                            case "string":
+                            case "number":
+                            case "datetime":
+                                dataProps.push({
+                                    name: item,
+                                    value: data[item]
+                                });
+                                break;
+                            case "object":
+                                if (data[item]) {
+                                    dataChildren.push(item);
+                                } else {
+                                    dataProps.push({
+                                        name: item,
+                                        value: ''
+                                    });
+                                }
+                                break;
+                            default:
+                                break;
                         }
+                    });
+                } else {
+                    if (typeof data[0] === "object") {
+                        const firstItem = data[0];
+                        Object.keys(firstItem).map((item) => {
+                            switch (typeof firstItem[item]) {
+                                case "bool":
+                                case "string":
+                                case "number":
+                                case "datetime":
+                                    dataProps.push({
+                                        name: item,
+                                        value: firstItem[item]
+                                    });
+                                    break;
+                                case "object":
+                                    if (firstItem[item]) {
+                                        dataChildren.push(item);
+                                    } else {
+                                        dataProps.push({
+                                            name: item,
+                                            value: ''
+                                        });
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
                     }
-                    module.exports.saveToFile(item, child, false, baseFilename, defaultComponentType);
                 }
-            });
+                const template = require(`${templatesFolder}/${componentType}-component.jsx`, 'UTF8');
+
+                const component = recursive_rendering(template, {
+                    name: pascalCase(componentName),
+                    childComponent: dataChildren.map(child => {
+                        return module.exports.getComponentTag(child)
+                    }).join(''),
+                    className: pascalCase(componentName),
+                    importChildStatement: dataChildren.map(child => {
+                        return module.exports.getComponentImport(child)
+                    }).join(os.EOL),
+                    props: dataProps.map(prop => {
+                        return module.exports.getProp(prop, componentType)
+                    }).join(os.EOL)
+                });
+
+                let appDir, dir, filename;
+                const outputSubdir = currentDate + '_' + baseFilename;
+                componentName = pascalCase(componentName);
+                if (parentComponentName) {
+                    if (depth === 1) {
+                        appDir = `${defaultPath}/${outputDir}/${outputSubdir}`;
+                    } else {
+                        appDir = `${defaultPath}/${outputDir}/${outputSubdir}/${parentComponentName}`;
+                    }
+                    //in testing
+                    if (depth > 2) {
+                        appDir = path.dirname(parentFilename);
+                    }
+                    createDir(appDir);
+                    dir = `${appDir}/${componentName}`;
+                    createDir(dir);
+                    filename = `${dir}/${componentName}.jsx`;
+                } else {
+                    appDir = `${defaultPath}/${outputDir}/${outputSubdir}`;
+                    dir = `${appDir}/`;
+                    filename = `${dir}/${componentName}.js`;
+                    createDir(appDir);
+                    createDir(dir);
+                }
+                const componentPrettified = prettier.format(component, {
+                    semi: true,
+                    parser: "babel"
+                });
+                fs.appendFile(filename, componentPrettified, function (err) {
+                    if (err) {
+                        return console.warn(err);
+                    }
+                    if (!silentMode) {
+                        console.log(`The file ${filename} was created!`);
+                    }
+                });
+
+                if (data.constructor !== Array) {
+                    dataChildren.map(child => {
+                        module.exports.writeComponent(data[child], baseFilename, child, defaultComponentType, componentName, (depth + 1), filename);
+                    });
+                } else {
+                    const firstItem = data[0];
+                    dataChildren.map(child => {
+                        module.exports.writeComponent(firstItem[child], baseFilename, child, defaultComponentType, componentName, (depth + 1), filename);
+                    });
+                }
+
+            }
         }
     },
-    saveToFile: function (name, child, isChild, sourcefilename, componentType, isRoot) {
-        name = capitalize(name);
-        if (child) {
-            child = capitalize(child);
-        }
-        let res = module.exports.getComponentTemplate(name, child, isChild, componentType);
-        const m = getCurrentDate() + '_' + sourcefilename;
-        if (!fs.existsSync(`${defaultPath}/${outputDir}/${m}`)) {
-            fs.mkdirSync(`${defaultPath}/${outputDir}/${m}`);
-        }
-        let appDir, dir, filename;
-        if (isRoot) {
-            appDir = `${defaultPath}/output/${m}`;
-            dir = `${appDir}/`;
-            filename = `${dir}/${name}.jsx`;
-        } else if (isChild) {
-            appDir = `${defaultPath}/${outputDir}/${m}/${name}`;
-            createDir(appDir);
-            dir = `${appDir}/${child}`;
-            createDir(dir);
-            filename = `${dir}/${child}.jsx`;
-        } else {
-            appDir = `${defaultPath}/${outputDir}/${m}`;
-            dir = `${appDir}/${name}`;
-            filename = `${dir}/${name}.jsx`;
-        }
-        createDir(appDir);
-        createDir(dir);
-        fs.appendFile(filename, res, function (err) {
-            if (err) {
-                return console.warn(err);
-            }
-            if (!silentMode) {
-                console.log(`The file ${filename} was saved!`);
-            }
-        });
+    getRootComponent: function (componentName, filename) {
+        const {
+            baseFilename: baseFilename,
+            data: data
+        } = module.exports.getDataFromFile(filename);
+        componentName = pascalCase(componentName);
+        module.exports.writeComponent(data, baseFilename, componentName, "stateless", null, 0, filename);
     }
 }

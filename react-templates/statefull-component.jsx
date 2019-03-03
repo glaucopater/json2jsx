@@ -7,6 +7,7 @@ export default class ${name} extends Component {
     render() {
         return (
             <div className='${className}'>
+                ${props}
                 ${childComponent}
             </div>
         )

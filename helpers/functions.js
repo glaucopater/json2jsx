@@ -5,7 +5,7 @@ module.exports = {
         for (var key in context) {
             if (context.hasOwnProperty(key)) {
                 if (typeof context[key] === "object") {
-                    string = recursive_rendering(string, context[key], (stack ? stack + '.' : '') + key);
+                    string = module.exports.recursive_rendering(string, context[key], (stack ? stack + '.' : '') + key);
                 } else {
                     var find = '\\$\\{\\s*' + (stack ? stack + '.' : '') + key + '\\s*\\}';
                     var re = new RegExp(find, 'g');
@@ -51,9 +51,16 @@ module.exports = {
         const capitalizedName = [first.toUpperCase()].concat(other).join("");
         return capitalizedName;
     },
+    pascalCase: function (name) {
+        if(name.indexOf("_")!==-1){
+            return name.split("_").map( token => { return module.exports.capitalize(token) }).join("");
+        }
+        else 
+            return module.exports.capitalize(name);
+    },
     createDir: function(dirName) {
         if (!fs.existsSync(dirName)) {
-            fs.mkdirSync(dirName);
+            fs.mkdirSync(dirName); 
         }
     }
 }
