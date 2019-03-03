@@ -6,7 +6,7 @@ const {
     getCurrentDate,
     capitalize,
     createDir,
-    log
+    pascalCase
 } = require('./helpers/functions');
 const defaultPath = process.cwd();
 const prettier = require("prettier");
@@ -26,7 +26,7 @@ const currentDate = getCurrentDate();
 
 module.exports = {
     getComponentTag: function (componentName) {
-        return `<${capitalize(componentName)} />`;
+        return `<${pascalCase(componentName)} />`;
     },
     getProp: function (prop, componentType) {
         if (componentType === "statefull")
@@ -35,7 +35,7 @@ module.exports = {
             return `<span className='${capitalize(prop.name)}'>{props.${prop.name}}</span>`;
     },
     getComponentImport: function (componentName) {
-        return `import ${capitalize(componentName)} from './${capitalize(componentName)}/${capitalize(componentName)}';`
+        return `import ${pascalCase(componentName)} from './${pascalCase(componentName)}/${pascalCase(componentName)}';`
     },
     getDataFromFile: function (filename) {
         return {
@@ -112,11 +112,11 @@ module.exports = {
                 const template = require(`${templatesFolder}/${componentType}-component.jsx`, 'UTF8');
 
                 const component = recursive_rendering(template, {
-                    name: capitalize(componentName),
+                    name: pascalCase(componentName),
                     childComponent: dataChildren.map(child => {
                         return module.exports.getComponentTag(child)
                     }).join(''),
-                    className: capitalize(componentName),
+                    className: pascalCase(componentName),
                     importChildStatement: dataChildren.map(child => {
                         return module.exports.getComponentImport(child)
                     }).join(os.EOL),
@@ -127,7 +127,7 @@ module.exports = {
 
                 let appDir, dir, filename;
                 const outputSubdir = currentDate + '_' + baseFilename;
-                componentName = capitalize(componentName);
+                componentName = pascalCase(componentName);
                 if (parentComponentName) {
                     if (depth === 1) {
                         appDir = `${defaultPath}/${outputDir}/${outputSubdir}`;
@@ -181,7 +181,7 @@ module.exports = {
             baseFilename: baseFilename,
             data: data
         } = module.exports.getDataFromFile(filename);
-        componentName = capitalize(componentName);
+        componentName = pascalCase(componentName);
         module.exports.writeComponent(data, baseFilename, componentName, "stateless", null, 0, filename);
     }
 }
