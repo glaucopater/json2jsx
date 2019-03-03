@@ -28,8 +28,11 @@ module.exports = {
     getComponentTag: function (componentName) {
         return `<${capitalize(componentName)} />`;
     },
-    getProp: function (prop) {
-        return `<span className='${capitalize(prop.name)}'>{props.${prop.name}}</span>`;
+    getProp: function (prop, componentType) {
+        if (componentType === "statefull")
+            return `<span className='${capitalize(prop.name)}'>{this.props.${prop.name}}</span>`;
+        else
+            return `<span className='${capitalize(prop.name)}'>{props.${prop.name}}</span>`;
     },
     getComponentImport: function (componentName) {
         return `import ${capitalize(componentName)} from './${capitalize(componentName)}/${capitalize(componentName)}';`
@@ -63,14 +66,21 @@ module.exports = {
                                 });
                                 break;
                             case "object":
-                                dataChildren.push(item);
+                                if (data[item]) {
+                                    dataChildren.push(item);
+                                } else {
+                                    dataProps.push({
+                                        name: item,
+                                        value: ''
+                                    });
+                                }
                                 break;
                             default:
                                 break;
                         }
                     });
                 } else {
-                    if(typeof data[0] === "object"){
+                    if (typeof data[0] === "object") {
                         const firstItem = data[0];
                         Object.keys(firstItem).map((item) => {
                             switch (typeof firstItem[item]) {
@@ -84,7 +94,14 @@ module.exports = {
                                     });
                                     break;
                                 case "object":
-                                    dataChildren.push(item);
+                                    if (firstItem[item]) {
+                                        dataChildren.push(item);
+                                    } else {
+                                        dataProps.push({
+                                            name: item,
+                                            value: ''
+                                        });
+                                    }
                                     break;
                                 default:
                                     break;
@@ -104,7 +121,7 @@ module.exports = {
                         return module.exports.getComponentImport(child)
                     }).join(os.EOL),
                     props: dataProps.map(prop => {
-                        return module.exports.getProp(prop)
+                        return module.exports.getProp(prop, componentType)
                     }).join(os.EOL)
                 });
 
@@ -128,7 +145,7 @@ module.exports = {
                 } else {
                     appDir = `${defaultPath}/${outputDir}/${outputSubdir}`;
                     dir = `${appDir}/`;
-                    filename = `${dir}/${componentName}.jsx`;
+                    filename = `${dir}/${componentName}.js`;
                     createDir(appDir);
                     createDir(dir);
                 }

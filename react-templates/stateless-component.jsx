@@ -1,6 +1,6 @@
 import React from 'react'; 
 ${importChildStatement}
-const ${name} = () => { 
+const ${name} = (props) => { 
     return (
         <div className='${className}'>
             ${props}
