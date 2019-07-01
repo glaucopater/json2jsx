@@ -95,16 +95,19 @@ At the moment input file(s) must have .json extension otherwise this will raise 
 
 Default options are the following ones:
 
-- outputDir (default "./output")
+- outputDir (default "./output").
   The folder used for the generated file, it needs to be writeable.
 
-- silentMode (default: true)
+- templatesFolder (default: "./react-templates").
+  The folder containing the template used by the library itself.
+
+- silentMode (default: true).
   Show console message if set to false
 
-- defaultComponentType: (default: statefull)
+- defaultComponentType (default: "statefull").
   It can be "statefull" or "stateless". For statefull React classes are used, for stateless functional components are used.
 
-- defaultRootComponentName: (default: "App")
+- defaultRootComponentName (default: "App").
   The root component filename.
 
 - defaultFolderPrefix: (default: "currentdate")
