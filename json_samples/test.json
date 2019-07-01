@@ -1,0 +1,6 @@
+{
+  "MyTestComponent": {
+    "numberProp": "1234567",
+    "stringProp": "Lorem ipsum..."
+  }
+}
