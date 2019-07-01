@@ -1,6 +1,6 @@
 # Json2jsx
 
-A node js library to transform a json view model (plain .json file) into a set of statefull components.
+A NodeJs library that transforms a json view model (a plain .json file) into a set of statefull or stateless components.
 
 # Abstract and heuristic assumption
 
@@ -95,16 +95,34 @@ At the moment input file(s) must have .json extension otherwise this will raise 
 
 Default options are the following ones:
 
-- outputDir: "./output"
-- silentMode: true
-- defaultComponentType: "statefull"
-- defaultRootComponentName: "App"
+- outputDir (default "./output").
+  The folder used for the generated file, it needs to be writeable.
+
+- templatesFolder (default: "./react-templates").
+  The folder containing the template used by the library itself.
+
+- silentMode (default: true).
+  Show console message if set to false
+
+- defaultComponentType (default: "statefull").
+  It can be "statefull" or "stateless". For statefull React classes are used, for stateless functional components are used.
+
+- defaultRootComponentName (default: "App").
+  The root component filename.
+
+- defaultFolderPrefix: (default: "currentdate")
+  The prefix used for the name of the main folder. With "currentdate" the folder will be prefixed with the current date
 
 # Test
 
-I have included some sample json files in order to test different scenarios. They are stored inside the module folder (node_modules/json2jsx/json_samples/)
+npm run test
 
-The sources are:
+This will launch the test suite
+
+I have included also some sample json files in order to test different scenarios.
+They are stored inside the module folder (node_modules/json2jsx/json_samples/)
+
+The sources of this json are:
 
 - [The Star Wars API](https://swapi.co/)
 - [Game of Thrones API](https://anapioficeandfire.com)
