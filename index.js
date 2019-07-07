@@ -15,7 +15,8 @@ const {
   outputDir,
   templatesFolder,
   silentMode,
-  defaultComponentType
+  defaultComponentType,
+  defaultRootComponentName
 } = require("./options.json");
 
 require.extensions[".jsx"] = function(module, filename) {
@@ -47,6 +48,17 @@ module.exports = {
       data: require(filename)
     };
   },
+  writeCss: function(baseFilename, folderPrefix) {
+    appDir = `${defaultPath}/${outputDir}/${folderPrefix}_${baseFilename}`;
+    fs.copyFile(
+      "./styles/App.css",
+      `${appDir}/${defaultRootComponentName}.css`,
+      err => {
+        if (err) throw err;
+      }
+    );
+  },
+
   writeComponent: function(
     data,
     baseFilename,
@@ -132,6 +144,8 @@ module.exports = {
             })
             .join(""),
           className: pascalCase(componentName),
+          importCssStatement:
+            depth === 0 ? `import './${componentName}.css';` : "",
           importChildStatement: dataChildren
             .map(child => {
               return module.exports.getComponentImport(child);
@@ -168,6 +182,7 @@ module.exports = {
           createDir(appDir);
           createDir(dir);
         }
+        //this must be run after each string literal replacement!!!
         const componentPrettified = prettier.format(component, {
           semi: true,
           parser: "babel"
@@ -231,5 +246,7 @@ module.exports = {
       filename,
       folderPrefix
     );
+
+    module.exports.writeCss(baseFilename, folderPrefix);
   }
 };

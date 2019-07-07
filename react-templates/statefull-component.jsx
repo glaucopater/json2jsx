@@ -1,16 +1,14 @@
-import React, { Component } from 'react'; 
+import React, { Component } from 'react';
+${importCssStatement}
 ${importChildStatement}
-const style = {
-    borderWidth: 1,
-    borderColor: '#000'
-};
+
 export default class ${name} extends Component { 
     componentDidMount() {
         console.log(this.props);
     }
     render() {
         return (
-            <div className='${className}' style={style}>
+            <div className='${className}' >
                 ${props}
                 ${childComponent}
                 {Object.values(this.props).map((p, index) => (
