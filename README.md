@@ -2,7 +2,54 @@
 
 A NodeJs library that transforms a json view model (a plain .json file) into a set of statefull or stateless components.
 
-# Abstract and heuristic assumption
+# How to use (fun part)
+
+## Step 1:
+
+Create an empty project for React JS (for example using [Create React App](https://github.com/facebook/) )
+
+## Step 2:
+
+Create or download any json file (at the bottom of this readme you can find different examples).
+
+i.e nasa.open.api.json
+[nasa.open.api.json](/json_sample/nasa.open.api.json)
+
+## Step 3:
+
+Run json2jsx passing this json file as a parameter. This will create a folder containing the React components.
+
+json2jsx nasa.open.api.json
+
+## Step 4:
+
+Edit the default index.js pointing to the new created App.js (the root component).
+At this point you can already run npm start and see the result on your local node web server (usually localhost on port 8080)
+
+## Step 5 (optional):
+
+This step is totally optional but show the power of this tool.
+Edit the previous index.js file passing the content of the json file as a prop:
+i.e
+
+<App {...require("./nasa.open.api.json")} />
+
+Save and go back to the browser to check the difference!
+
+![Tutorial Step 5](/tutorial/json2jsx_tutorial_step_5.jpg)
+
+## Step 6 (optional)
+
+At the moment the tool is agnostic respect to datatype and tag element, but this just looking at the page it is very easy to adjust any component or props.
+I.e changing the HdUrl and url into and <a> and an <img> the UI becomes:
+
+![Tutorial Step 6](/tutorial/json2jsx_tutorial_step_6.jpg)
+
+## Note about the styling
+
+There is small CSS that will show the structure of the components and subcomponents.
+
+# Abstract and heuristic assumption (maybe boring part...)
 
 In every project or prototype using React JS I found, a json structure is always present.
 Generally the mapping of the view model is not 100% reflected into the UI, but many parts of the structures are.
@@ -124,6 +171,7 @@ They are stored inside the module folder (node_modules/json2jsx/json_samples/)
 
 The sources of this json are:
 
+- [NASA Open API](https://api.nasa.gov/#getting-started)
 - [The Star Wars API](https://swapi.co/)
 - [Game of Thrones API](https://anapioficeandfire.com)
 - [Pokemon API](https://pokeapi.co/api/v2/pokemon/ditto)

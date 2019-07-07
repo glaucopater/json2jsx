@@ -1,0 +1,10 @@
+div,
+span {
+  border: 1px solid black;
+  padding: 6px;
+  min-width: 10px;
+  min-height: 10px;
+  display: block;
+  margin: 12px;
+  box-shadow: 3px 3px 3px 3px #00000030;
+}

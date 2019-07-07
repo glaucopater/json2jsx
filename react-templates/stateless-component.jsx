@@ -1,12 +1,10 @@
 import React from 'react'; 
+${importCssStatement}
 ${importChildStatement}
-const style = {
-    borderWidth: 1,
-    borderColor: '#000'
-};
+
 const ${name} = (props) => { 
     return (
-        <div className='${className}'style={style}>
+        <div className='${className}'>
             ${props}
             ${childComponent}
         </div>

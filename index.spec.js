@@ -6,6 +6,7 @@ const componentName = "MyTestComponent";
 const outputFile = `./output/${defaultFolderPrefix}_test/${componentName}/${componentName}.jsx`;
 const appDir = `./output/${defaultFolderPrefix}_test/`;
 const rootFile = `./output/${defaultFolderPrefix}_test/${defaultRootComponentName}.js`;
+const rootCssFile = `./output/${defaultFolderPrefix}_test/${defaultRootComponentName}.css`;
 const componentFolder = `./output/${defaultFolderPrefix}_test/${componentName}/`;
 
 describe("Test Generated Component according to the options", () => {
@@ -23,11 +24,13 @@ describe("Test Generated Component according to the options", () => {
       expect(fs.existsSync(appDir)).toBe(true);
       expect(fs.existsSync(componentFolder)).toBe(true);
       expect(fs.existsSync(rootFile)).toBe(true);
+      expect(fs.existsSync(rootCssFile)).toBe(true);
 
       //restore the previous status of the file system
 
       fs.unlinkSync(outputFile);
       fs.unlinkSync(rootFile);
+      fs.unlinkSync(rootCssFile);
       fs.rmdirSync(componentFolder);
       fs.rmdirSync(appDir);
       expect(fs.existsSync(appDir)).toBe(false);
