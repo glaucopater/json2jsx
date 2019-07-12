@@ -17,14 +17,14 @@ i.e nasa.open.api.json
 
 ## Step 3:
 
-Run json2jsx passing this json file as a parameter. This will create a folder containing the React components.
+Run json2jsx passing this json file as a parameter. This will create a folder containing any matching React component(s) according to the json structure.
 
 json2jsx nasa.open.api.json
 
 ## Step 4:
 
-Edit the default index.js pointing to the new created App.js (the root component).
-At this point you can already run npm start and see the result on your local node web server (usually localhost on port 8080)
+Edit the default index.js pointing to the new created App.js (the root component default filename, that can be changed modifying the options).
+At this point you can already run npm start and see the result on your local node web server (usually running on localhost, port 3000)
 
 ## Step 5 (optional):
 
