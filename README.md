@@ -13,7 +13,7 @@ Create an empty project for React JS (for example using [Create React App](https
 Create or download any json file (at the bottom of this readme you can find different examples).
 
 i.e nasa.open.api.json
-[nasa.open.api.json](/json_sample/nasa.open.api.json)
+[nasa.open.api.json](https://raw.githubusercontent.com/glaucopater/json2jsx/master/json_samples/nasa.open.api.json)
 
 ## Step 3:
 
