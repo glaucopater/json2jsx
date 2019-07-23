@@ -52,7 +52,7 @@ module.exports = {
   writeCss: function(baseFilename, folderPrefix) {
     appDir = `${defaultPath}/${outputDir}/${folderPrefix}_${baseFilename}`;
     fs.copyFile(
-      `${stylesFolder}/App.css`,
+      `${templatesFolder}/../${stylesFolder}/App.css`,
       `${appDir}/${defaultRootComponentName}.css`,
       err => {
         if (err) throw err;
