@@ -14,7 +14,6 @@ const prettier = require("prettier");
 const {
   outputDir,
   templatesFolder,
-  stylesFolder, 
   silentMode,
   defaultComponentType,
   defaultRootComponentName
@@ -51,13 +50,21 @@ module.exports = {
   },
   writeCss: function(baseFilename, folderPrefix) {
     appDir = `${defaultPath}/${outputDir}/${folderPrefix}_${baseFilename}`;
-    fs.copyFile(
-      `${templatesFolder}/../${stylesFolder}/App.css`,
-      `${appDir}/${defaultRootComponentName}.css`,
-      err => {
-        if (err) throw err;
+    const minifiedCss = "div,span{border:1px solid #000;padding:6px;min-width:10px;min-height:10px;display:block;margin:12px;box-shadow:3px 3px 3px 3px #00000030}";
+    const cssPrettified = prettier.format(minifiedCss, {
+      semi: true,
+      parser: "css"
+    });
+
+    const cssDestFile = `${appDir}/${defaultRootComponentName}.css`;
+    fs.writeFileSync(cssDestFile, cssPrettified, function(err) {
+      if (err) {
+        return console.warn(err);
       }
-    );
+      if (!silentMode) {
+        console.log(`The file ${cssDestFile} was created!`);
+      }
+    });
   },
 
   writeComponent: function(
