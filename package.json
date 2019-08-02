@@ -1,6 +1,6 @@
 {
   "name": "json2jsx",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "description": "A node js library to transform a json view model into a set of components",
   "main": "index.js",
   "scripts": {
