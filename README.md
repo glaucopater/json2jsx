@@ -160,6 +160,9 @@ Default options are the following ones:
 - defaultFolderPrefix: (default: "currentdate")
   The prefix used for the name of the main folder. With "currentdate" the folder will be prefixed with the current date
 
+- cleanUpTestOutput: (default: true)
+  Clean unit tests generated folders and files
+
 # Test
 
 npm run test
