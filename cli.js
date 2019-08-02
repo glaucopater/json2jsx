@@ -11,7 +11,11 @@ const {
   defaultFolderPrefix
 } = require("./options.json");
 
-if (process.argv[2] && fs.existsSync(process.argv[2])) {
+const versionKeywords = ["-v", "-ver", "--ver", "--version"];
+if (process.argv[2] && versionKeywords.includes(process.argv[2])) {
+  const { name, version } = require("./package.json");
+  console.log(`${name} version: ${version}`);
+} else if (process.argv[2] && fs.existsSync(process.argv[2])) {
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
   }

@@ -25,7 +25,7 @@ require.extensions[".jsx"] = function(module, filename) {
 
 module.exports = {
   getComponentTag: function(componentName) {
-    return `<${pascalCase(componentName)} {...props.${componentName}} />`;
+    return `<${pascalCase(componentName)} {...this.props.${componentName}} />`;
   },
   getProp: function(prop, componentType) {
     if (componentType === "statefull")
