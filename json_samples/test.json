@@ -1,6 +1,7 @@
 {
   "MyTestComponent": {
     "numberProp": "1234567",
-    "stringProp": "Lorem ipsum..."
+    "stringProp": "Lorem ipsum...",
+    "MyTestSubComponent": [[[1, 2, 3], [10, 20, 30]]]
   }
 }

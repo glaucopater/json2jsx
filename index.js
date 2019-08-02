@@ -50,7 +50,8 @@ module.exports = {
   },
   writeCss: function(baseFilename, folderPrefix) {
     appDir = `${defaultPath}/${outputDir}/${folderPrefix}_${baseFilename}`;
-    const minifiedCss = "div,span{border:1px solid #000;padding:6px;min-width:10px;min-height:10px;display:block;margin:12px;box-shadow:3px 3px 3px 3px #00000030}";
+    const minifiedCss =
+      "div,span{border:1px solid #000;padding:6px;min-width:10px;min-height:10px;display:block;margin:12px;box-shadow:3px 3px 3px 3px #00000030}";
     const cssPrettified = prettier.format(minifiedCss, {
       semi: true,
       parser: "css"
@@ -113,6 +114,7 @@ module.exports = {
             }
           });
         } else {
+          //to focus
           if (typeof data[0] === "object") {
             const firstItem = data[0];
             Object.keys(firstItem).map(item => {
@@ -128,7 +130,8 @@ module.exports = {
                   break;
                 case "object":
                   if (firstItem[item]) {
-                    dataChildren.push(item);
+                    if (firstItem[item].constructor !== Array)
+                      dataChildren.push(item);
                   } else {
                     dataProps.push({
                       name: item,
