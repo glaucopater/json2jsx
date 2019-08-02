@@ -4,5 +4,6 @@
   "silentMode": true,
   "defaultComponentType": "statefull",
   "defaultRootComponentName": "App",
-  "defaultFolderPrefix": "currentdate"
+  "defaultFolderPrefix": "currentdate",
+  "cleanUpTestOutput": true
 }
