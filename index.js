@@ -67,7 +67,71 @@ module.exports = {
       }
     });
   },
-
+  manageData: function(data) {
+    let dataProps = [];
+    let dataChildren = [];
+    if (typeof data === "object") {
+      if (data.constructor !== Array) {
+        Object.keys(data).map(item => {
+          switch (typeof data[item]) {
+            case "bool":
+            case "string":
+            case "number":
+            case "datetime":
+              dataProps.push({
+                name: item,
+                value: data[item]
+              });
+              break;
+            case "object":
+              if (data[item]) {
+                dataChildren.push(item);
+              } else {
+                dataProps.push({
+                  name: item,
+                  value: ""
+                });
+              }
+              break;
+            default:
+              break;
+          }
+        });
+      } else {
+        //to focus
+        if (typeof data[0] === "object") {
+          const firstItem = data[0];
+          Object.keys(firstItem).map(item => {
+            switch (typeof firstItem[item]) {
+              case "bool":
+              case "string":
+              case "number":
+              case "datetime":
+                dataProps.push({
+                  name: item,
+                  value: firstItem[item]
+                });
+                break;
+              case "object":
+                if (firstItem[item]) {
+                  if (firstItem[item].constructor !== Array)
+                    dataChildren.push(item);
+                } else {
+                  dataProps.push({
+                    name: item,
+                    value: ""
+                  });
+                }
+                break;
+              default:
+                break;
+            }
+          });
+        }
+      }
+    }
+    return { dataProps, dataChildren };
+  },
   writeComponent: function(
     data,
     baseFilename,
@@ -80,73 +144,13 @@ module.exports = {
   ) {
     if (data) {
       //for root array just get the first element
-
       if (!parentComponentName && data.constructor === Array) {
         data = data.constructor !== Array ? data : data[0] ? data[0] : [];
       }
       if (typeof data === "object") {
-        let dataProps = [];
-        let dataChildren = [];
-        if (data.constructor !== Array) {
-          Object.keys(data).map(item => {
-            switch (typeof data[item]) {
-              case "bool":
-              case "string":
-              case "number":
-              case "datetime":
-                dataProps.push({
-                  name: item,
-                  value: data[item]
-                });
-                break;
-              case "object":
-                if (data[item]) {
-                  dataChildren.push(item);
-                } else {
-                  dataProps.push({
-                    name: item,
-                    value: ""
-                  });
-                }
-                break;
-              default:
-                break;
-            }
-          });
-        } else {
-          //to focus
-          if (typeof data[0] === "object") {
-            const firstItem = data[0];
-            Object.keys(firstItem).map(item => {
-              switch (typeof firstItem[item]) {
-                case "bool":
-                case "string":
-                case "number":
-                case "datetime":
-                  dataProps.push({
-                    name: item,
-                    value: firstItem[item]
-                  });
-                  break;
-                case "object":
-                  if (firstItem[item]) {
-                    if (firstItem[item].constructor !== Array)
-                      dataChildren.push(item);
-                  } else {
-                    dataProps.push({
-                      name: item,
-                      value: ""
-                    });
-                  }
-                  break;
-                default:
-                  break;
-              }
-            });
-          }
-        }
-        const template = require(`${templatesFolder}/${componentType}-component.jsx`, "UTF8");
+        let { dataProps, dataChildren } = this.manageData(data);
 
+        const template = require(`${templatesFolder}/${componentType}-component.jsx`, "UTF8");
         const component = recursive_rendering(template, {
           name: pascalCase(componentName),
           childComponent: dataChildren
@@ -193,7 +197,7 @@ module.exports = {
           createDir(appDir);
           createDir(dir);
         }
-        //this must be run after each string literal replacement!!!
+        //this must be executed after each string literal replacement!!!
         const componentPrettified = prettier.format(component, {
           semi: true,
           parser: "babel"
@@ -206,7 +210,6 @@ module.exports = {
             console.log(`The file ${filename} was created!`);
           }
         });
-
         if (data.constructor !== Array) {
           dataChildren.map(child => {
             module.exports.writeComponent(
@@ -244,9 +247,7 @@ module.exports = {
       data: data
     } = module.exports.getDataFromFile(filename);
     componentName = pascalCase(componentName);
-
     const folderPrefix = getFolderPrefix(defaultFolderPrefix);
-
     module.exports.writeComponent(
       data,
       baseFilename,
