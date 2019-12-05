@@ -1,7 +1,7 @@
 {
   "outputDir": "./output",
   "templatesFolder": "./react-templates",
-  "silentMode": true,
+  "silentMode": false,
   "defaultComponentType": "statefull",
   "defaultRootComponentName": "App",
   "defaultFolderPrefix": "currentdate",

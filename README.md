@@ -2,7 +2,7 @@
 
 A NodeJs library that transforms a json view model (a plain .json file) into a set of statefull or stateless components.
 
-# How to use (fun part)
+# How to use
 
 ## Step 1:
 
