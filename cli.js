@@ -4,14 +4,12 @@ const fs = require("fs");
 var path = require("path");
 const {
   outputDir,
-  templatesFolder,
-  silentMode,
-  defaultComponentType,
   defaultRootComponentName,
   defaultFolderPrefix
 } = require("./options.json");
 
 const versionKeywords = ["-v", "-ver", "--ver", "--version"];
+
 if (process.argv[2] && versionKeywords.includes(process.argv[2])) {
   const { name, version } = require("./package.json");
   console.log(`${name} version: ${version}`);
@@ -27,6 +25,4 @@ if (process.argv[2] && versionKeywords.includes(process.argv[2])) {
     absolutePath,
     folderPrefix
   );
-} else if (!silentMode) {
-  console.log(`The file ${filename} was created!`);
 }
