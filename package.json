@@ -25,7 +25,8 @@
     "json2jsx": "./cli.js"
   },
   "devDependencies": {
-    "jest": "^25.2.7"
+    "jest": "^25.2.7",
+    "handlebars": "^4.7.6"
   },
   "dependencies": {
     "lodash": "^4.17.15",
