@@ -152,7 +152,7 @@ Default options are the following ones:
   Show console message if set to false
 
 - defaultComponentType (default: "statefull").
-  It can be "statefull" or "stateless". For statefull React classes are used, for stateless functional components are used.
+  It can be "statefull" or "functional".
 
 - defaultRootComponentName (default: "App").
   The root component filename.

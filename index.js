@@ -3,11 +3,10 @@ const path = require("path");
 var os = require("os");
 const {
   recursive_rendering,
-  getCurrentDate,
   getFolderPrefix,
   capitalize,
   createDir,
-  pascalCase
+  pascalCase,
 } = require("./helpers/functions");
 const defaultPath = process.cwd();
 const prettier = require("prettier");
@@ -16,49 +15,52 @@ const {
   templatesFolder,
   silentMode,
   defaultComponentType,
-  defaultRootComponentName
+  defaultRootComponentName,
 } = require("./options.json");
 
-require.extensions[".jsx"] = function(module, filename) {
+require.extensions[".jsx"] = function (module, filename) {
   module.exports = fs.readFileSync(filename, "utf8");
 };
 
 module.exports = {
-  getComponentTag: function(componentName) {
-    return `<${pascalCase(componentName)} {...this.props.${componentName}} />`;
+  getComponentTag: function (componentName, componentType) {
+    const propsParameter =
+      componentType === "functional"
+        ? `{...props.${componentName}}`
+        : `{...this.props.${componentName}}`;
+    return `<${pascalCase(componentName)} ${propsParameter} />`;
   },
-  getProp: function(prop, componentType) {
-    if (componentType === "statefull")
-      return `<span className='${capitalize(prop.name)}'>{this.props.${
-        prop.name
-      }}</span>`;
-    else
-      return `<span className='${capitalize(prop.name)}'>{props.${
-        prop.name
-      }}</span>`;
+  getProp: function (prop, componentType) {
+    const propsParameter =
+      componentType === "functional"
+        ? `{props.${prop.name}}`
+        : `{this.props.${prop.name}}`;
+    return `<span className='${capitalize(
+      prop.name
+    )}'>${propsParameter}</span>`;
   },
-  getComponentImport: function(componentName) {
+  getComponentImport: function (componentName) {
     return `import ${pascalCase(componentName)} from './${pascalCase(
       componentName
     )}/${pascalCase(componentName)}';`;
   },
-  getDataFromFile: function(filename) {
+  getDataFromFile: function (filename) {
     return {
       baseFilename: path.basename(filename, ".json"),
-      data: require(filename)
+      data: require(filename),
     };
   },
-  writeCss: function(baseFilename, folderPrefix) {
-    appDir = `${defaultPath}/${outputDir}/${folderPrefix}_${baseFilename}`;
+  writeCss: function (baseFilename, folderPrefix) {
+    let appDir = `${defaultPath}/${outputDir}/${folderPrefix}_${baseFilename}`;
     const minifiedCss =
       "div,span{border:1px solid #000;padding:6px;min-width:10px;min-height:10px;display:block;margin:12px;box-shadow:3px 3px 3px 3px #00000030}";
     const cssPrettified = prettier.format(minifiedCss, {
       semi: true,
-      parser: "css"
+      parser: "css",
     });
 
     const cssDestFile = `${appDir}/${defaultRootComponentName}.css`;
-    fs.writeFileSync(cssDestFile, cssPrettified, function(err) {
+    fs.writeFileSync(cssDestFile, cssPrettified, function (err) {
       if (err) {
         return console.warn(err);
       }
@@ -67,20 +69,19 @@ module.exports = {
       }
     });
   },
-  manageData: function(data) {
+  manageData: function (data) {
     let dataProps = [];
     let dataChildren = [];
     if (typeof data === "object") {
       if (data.constructor !== Array) {
-        Object.keys(data).map(item => {
+        Object.keys(data).map((item) => {
           switch (typeof data[item]) {
-            case "bool":
+            case "boolean":
             case "string":
             case "number":
-            case "datetime":
               dataProps.push({
                 name: item,
-                value: data[item]
+                value: data[item],
               });
               break;
             case "object":
@@ -89,7 +90,7 @@ module.exports = {
               } else {
                 dataProps.push({
                   name: item,
-                  value: ""
+                  value: "",
                 });
               }
               break;
@@ -101,15 +102,14 @@ module.exports = {
         //to focus
         if (typeof data[0] === "object") {
           const firstItem = data[0];
-          Object.keys(firstItem).map(item => {
+          Object.keys(firstItem).map((item) => {
             switch (typeof firstItem[item]) {
-              case "bool":
+              case "boolean":
               case "string":
               case "number":
-              case "datetime":
                 dataProps.push({
                   name: item,
-                  value: firstItem[item]
+                  value: firstItem[item],
                 });
                 break;
               case "object":
@@ -119,7 +119,7 @@ module.exports = {
                 } else {
                   dataProps.push({
                     name: item,
-                    value: ""
+                    value: "",
                   });
                 }
                 break;
@@ -132,7 +132,7 @@ module.exports = {
     }
     return { dataProps, dataChildren };
   },
-  writeComponent: function(
+  writeComponent: function (
     data,
     baseFilename,
     componentName,
@@ -154,23 +154,23 @@ module.exports = {
         const component = recursive_rendering(template, {
           name: pascalCase(componentName),
           childComponent: dataChildren
-            .map(child => {
-              return module.exports.getComponentTag(child);
+            .map((child) => {
+              return module.exports.getComponentTag(child, componentType);
             })
             .join(""),
           className: pascalCase(componentName),
           importCssStatement:
             depth === 0 ? `import './${componentName}.css';` : "",
           importChildStatement: dataChildren
-            .map(child => {
+            .map((child) => {
               return module.exports.getComponentImport(child);
             })
             .join(os.EOL),
           props: dataProps
-            .map(prop => {
+            .map((prop) => {
               return module.exports.getProp(prop, componentType);
             })
-            .join(os.EOL)
+            .join(os.EOL),
         });
 
         let appDir, dir, filename;
@@ -200,9 +200,9 @@ module.exports = {
         //this must be executed after each string literal replacement!!!
         const componentPrettified = prettier.format(component, {
           semi: true,
-          parser: "babel"
+          parser: "babel",
         });
-        fs.writeFileSync(filename, componentPrettified, function(err) {
+        fs.writeFileSync(filename, componentPrettified, function (err) {
           if (err) {
             return console.warn(err);
           }
@@ -211,7 +211,7 @@ module.exports = {
           }
         });
         if (data.constructor !== Array) {
-          dataChildren.map(child => {
+          dataChildren.map((child) => {
             module.exports.writeComponent(
               data[child],
               baseFilename,
@@ -225,7 +225,7 @@ module.exports = {
           });
         } else {
           const firstItem = data[0];
-          dataChildren.map(child => {
+          dataChildren.map((child) => {
             module.exports.writeComponent(
               firstItem[child],
               baseFilename,
@@ -241,10 +241,10 @@ module.exports = {
       }
     }
   },
-  getRootComponent: function(componentName, filename, defaultFolderPrefix) {
+  getRootComponent: function (componentName, filename, defaultFolderPrefix) {
     const {
       baseFilename: baseFilename,
-      data: data
+      data: data,
     } = module.exports.getDataFromFile(filename);
     componentName = pascalCase(componentName);
     const folderPrefix = getFolderPrefix(defaultFolderPrefix);
@@ -252,7 +252,7 @@ module.exports = {
       data,
       baseFilename,
       componentName,
-      "stateless",
+      "functional",
       null,
       0,
       filename,
@@ -260,5 +260,5 @@ module.exports = {
     );
 
     module.exports.writeCss(baseFilename, folderPrefix);
-  }
+  },
 };
