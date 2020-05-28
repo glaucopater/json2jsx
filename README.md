@@ -41,7 +41,7 @@ Save and go back to the browser to check the difference!
 ## Step 6 (optional)
 
 At the moment the tool is agnostic respect to datatype and tag element, but this just looking at the page it is very easy to adjust any component or props.
-I.e changing the HdUrl and url into and <a> and an <img> the UI becomes:
+I.e changing the HdUrl and url the UI becomes:
 
 ![Tutorial Step 6](/tutorial/json2jsx_tutorial_step_6.jpg)
 
