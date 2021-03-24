@@ -1,6 +1,6 @@
 {
   "name": "json2jsx",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "description": "A node js library that transforms a json file into a set of react components",
   "main": "index.js",
   "scripts": {
@@ -25,13 +25,13 @@
     "json2jsx": "./cli.js"
   },
   "devDependencies": {
-    "jest": "^26.0.1",
-    "handlebars": "^4.7.6"
+    "jest": "^26.6.3",
+    "handlebars": "^4.7.7"
   },
   "dependencies": {
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "mixin-deep": "^2.0.1",
-    "prettier": "2.0.5",
+    "prettier": "2.2.1",
     "set-value": "^3.0.2"
   }
 }
