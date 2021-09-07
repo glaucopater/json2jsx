@@ -1,0 +1,9 @@
+{
+    "outputDir": "./output",
+    "templatesFolder": "./react-templates",
+    "silentMode": false,
+    "defaultComponentType": "functional",
+    "defaultRootComponentName": "App",
+    "defaultFolderPrefix": "currentdate",
+    "cleanUpTestOutput": true
+}
