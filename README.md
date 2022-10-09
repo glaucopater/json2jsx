@@ -19,7 +19,8 @@ i.e nasa.open.api.json
 
 Run json2jsx passing this json file as a parameter. This will create a folder containing any matching React component(s) according to the json structure.
 
-json2jsx nasa.open.api.json
+i.e. 
+json2jsx .\json_samples\nasa.open.api.json
 
 ## Step 4:
 
