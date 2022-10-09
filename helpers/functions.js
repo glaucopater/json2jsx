@@ -1,7 +1,7 @@
 const fs = require("fs");
 
 module.exports = {
-  recursive_rendering: function(string, context, stack) {
+  recursive_rendering: function (string, context, stack) {
     for (let key in context) {
       if (context.hasOwnProperty(key)) {
         if (typeof context[key] === "object") {
@@ -20,12 +20,12 @@ module.exports = {
     }
     return string;
   },
-  getFolderPrefix: function(defaultFolderPrefix) {
+  getFolderPrefix: function (defaultFolderPrefix) {
     return defaultFolderPrefix === "currentdate"
       ? module.exports.getCurrentDate()
       : defaultFolderPrefix;
   },
-  getCurrentDate: function() {
+  getCurrentDate: function () {
     const dateToken = [];
     const now = new Date();
     dateToken.push(now.getFullYear());
@@ -56,24 +56,24 @@ module.exports = {
     dateToken.push(second);
     return dateToken.join("");
   },
-  capitalize: function(name) {
+  capitalize: function (name) {
     const [first, ...other] = name;
     const capitalizedName = [first.toUpperCase()].concat(other).join("");
     return capitalizedName;
   },
-  pascalCase: function(name) {
+  pascalCase: function (name) {
     if (name.indexOf("_") !== -1) {
       return name
         .split("_")
-        .map(token => {
+        .map((token) => {
           return module.exports.capitalize(token);
         })
         .join("");
     } else return module.exports.capitalize(name);
   },
-  createDir: function(dirName) {
+  createDir: function (dirName) {
     if (!fs.existsSync(dirName)) {
       fs.mkdirSync(dirName);
     }
-  }
+  },
 };
