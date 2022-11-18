@@ -2,11 +2,15 @@
 
 A NodeJs library that transforms a json view model (a plain .json file) into a set of statefull or stateless components.
 
-# How to use
+# How to use it
 
 ## Step 1:
 
 Create an empty project for React JS (for example using [Create React App](https://github.com/facebook/) )
+
+or
+
+Create a new sandbox in [Codesandbox](https://codesandbox.io/)  
 
 ## Step 2:
 
