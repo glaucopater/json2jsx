@@ -10,7 +10,10 @@ const {
 const { name, description, version } = require("./package.json");
 const versionKeywords = ["-v", "-ver", "--ver", "--version"];
 
-if (process.argv[2]) {
+if (process.argv.length < 3) {
+  console.log(`${name}: ${description}`);
+} else if (process.argv[2]) {
+  // a parameter is passed
   if (versionKeywords.includes(process.argv[2])) {
     console.log(`${name} version: ${version}`);
   } else if (fs.existsSync(process.argv[2])) {
@@ -21,14 +24,14 @@ if (process.argv[2]) {
     const folderPrefix = process.argv[3]
       ? process.argv[3]
       : defaultFolderPrefix;
-    var absolutePath = path.resolve(inputFile);
+    const absolutePath = path.resolve(inputFile);
     json2jsx.getRootComponent(
       defaultRootComponentName,
       absolutePath,
       folderPrefix
     );
-    console.log(`${name}: output generated in the output folder!`);
+    console.log(`${name}: output generated in the output folder.`);
+  } else {
+    console.log(`${process.argv[2]} not found`);
   }
-} else if (process.argv.length < 3) {
-  console.log(`${name}: ${description}`);
 }
