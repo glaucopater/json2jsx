@@ -1,6 +1,6 @@
 {
     "outputDir": "./output",
-    "templatesFolder": "./react-templates",
+    "templatesFolder": "./src/react-templates",
     "silentMode": false,
     "defaultComponentType": "functional",
     "defaultRootComponentName": "App",

@@ -1,11 +1,11 @@
 const fs = require("fs");
 
 module.exports = {
-  recursive_rendering: function (string, context, stack) {
+  recursiveRendering: function (string, context, stack) {
     for (let key in context) {
       if (context.hasOwnProperty(key)) {
         if (typeof context[key] === "object") {
-          string = module.exports.recursive_rendering(
+          string = module.exports.recursiveRendering(
             string,
             context[key],
             (stack ? stack + "." : "") + key

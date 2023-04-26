@@ -1,14 +1,14 @@
 const {
-  recursive_rendering,
+  recursiveRendering,
   getCurrentDate,
   capitalize,
 } = require("./functions");
 
-test("recursive_rendering", () => {
+test("recursiveRendering", () => {
   const st =
     "import React, { Component } from 'react'; ${importChildStatement} export default class ${name} extends Component { }";
   expect(
-    recursive_rendering(st, { name: "Test", importChildStatement: "" })
+    recursiveRendering(st, { name: "Test", importChildStatement: "" })
   ).toBe(
     "import React, { Component } from 'react';  export default class Test extends Component { }"
   );

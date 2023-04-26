@@ -3,8 +3,8 @@ const {
   outputDir,
   defaultRootComponentName,
   cleanUpTestOutput
-} = require("./options.json");
-const { getFolderPrefix } = require("./helpers/functions");
+} = require("./config.json");
+const { getFolderPrefix } = require("./src/helpers/functions");
 
 describe("Test Generated Component according to the options, default folder name set to current date", () => {
   const defaultFolderPrefix = getFolderPrefix("currentdate");
