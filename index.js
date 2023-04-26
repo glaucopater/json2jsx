@@ -1,48 +1,60 @@
+// Import the required modules and functions
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const prettier = require("prettier");
+
 const {
-  recursive_rendering,
+  recursiveRendering,
   getFolderPrefix,
   capitalize,
   createDir,
   pascalCase,
 } = require("./src/helpers/functions");
 const defaultPath = process.cwd();
-const prettier = require("prettier");
+
+const config = require("./config.json");
+
+// Set up the file extension for loading jsx files
+require.extensions[".jsx"] = (module, filename) => {
+  module.exports = fs.readFileSync(filename, "utf8");
+};
+
+// Define some constants from the configuration
 const {
   outputDir,
   templatesFolder,
   silentMode,
   defaultComponentType,
   defaultRootComponentName,
-} = require("./config.json");
-
-require.extensions[".jsx"] = function (module, filename) {
-  module.exports = fs.readFileSync(filename, "utf8");
-};
+} = config;
 
 const minifiedCss =
-  "div,span{border:1px solid #000;padding:6px;min-width:10px;min-height:10px;display:block;margin:12px;box-shadow:3px 3px 3px 3px #00000030}";
+  "div,span{border:1px solid #111;padding:8px;min-width:16px;min-height:16px;display:block;margin:12px;box-shadow:4px 4px 4px 4px #11111130}";
 
-const manageError = (err, silentMode, message) => {
+// Define a helper function for managing errors
+function manageError(err, message) {
   if (err) {
-    return console.warn(err);
+    console.warn(err);
   }
   if (!silentMode) {
     console.log(message);
   }
-};
+}
 
+// Define the main export object
 module.exports = {
-  getComponentTag: function (componentName, componentType) {
+  // Returns a JSX component tag for the given component name and type
+  getComponentTag(componentName, componentType = defaultComponentType) {
     const propsParameter =
       componentType === "functional"
         ? `{...props.${componentName}}`
         : `{...this.props.${componentName}}`;
     return `<${pascalCase(componentName)} ${propsParameter} />`;
   },
-  getProp: function (prop, componentType) {
+
+  // Returns a JSX tag for the given prop and type
+  getProp(prop, componentType = defaultComponentType) {
     const propsParameter =
       componentType === "functional"
         ? `{props.${prop.name}}`
@@ -51,35 +63,47 @@ module.exports = {
       prop.name
     )}'>${propsParameter}</span>`;
   },
-  getComponentImport: function (componentName) {
+
+  // Returns an import statement for the given component name
+  getComponentImport(componentName) {
     return `import ${pascalCase(componentName)} from './${pascalCase(
       componentName
     )}/${pascalCase(componentName)}';`;
   },
-  getDataFromFile: function (filename) {
-    return {
-      baseFilename: path.basename(filename, ".json"),
-      data: require(filename),
-    };
+
+  // Returns the data and base filename for a given JSON file
+  getDataFromFile(filename) {
+    const baseFilename = path.basename(filename, ".json");
+    const data = require(filename);
+    return { baseFilename, data };
   },
-  writeCss: function (baseFilename, folderPrefix) {
-    let appDir = `${defaultPath}/${outputDir}/${folderPrefix}_${baseFilename}`;
+
+  // Writes a CSS file for the given base filename and folder prefix
+  writeCss(baseFilename, folderPrefix) {
+    const outputDirectoryPath = path.join(
+      defaultPath,
+      outputDir,
+      `${folderPrefix}_${baseFilename}`
+    );
     const cssPrettified = prettier.format(minifiedCss, {
       semi: true,
       parser: "css",
     });
-
-    const cssDestFile = `${appDir}/${defaultRootComponentName}.css`;
-    fs.writeFileSync(cssDestFile, cssPrettified, function (err) {
-      manageError(err, silentMode, `The file ${cssDestFile} was created!`);
-    });
+    const cssDestFile = path.join(
+      outputDirectoryPath,
+      `${defaultRootComponentName}.css`
+    );
+    fs.writeFileSync(cssDestFile, cssPrettified);
+    manageError(null, `The file ${cssDestFile} was created!`);
   },
-  manageData: function (data) {
-    let dataProps = [];
-    let dataChildren = [];
+
+  // Manages the data and returns the properties and children
+  manageData(data) {
+    const dataProps = [];
+    const dataChildren = [];
     if (typeof data === "object") {
       if (data.constructor !== Array) {
-        Object.keys(data).map((item) => {
+        Object.keys(data).forEach((item) => {
           switch (typeof data[item]) {
             case "boolean":
             case "string":
@@ -104,23 +128,23 @@ module.exports = {
           }
         });
       } else {
-        // to focus
-        if (data && typeof data[0] === "object") {
-          const firstItem = data[0];
-          Object.keys(firstItem).map((item) => {
-            switch (typeof firstItem[item]) {
+        const firstItem = Array.isArray(data) ? data[0] : data;
+        if (typeof firstItem === "object" && firstItem !== null) {
+          Object.keys(data[0]).forEach((item) => {
+            switch (typeof data[0][item]) {
               case "boolean":
               case "string":
               case "number":
                 dataProps.push({
                   name: item,
-                  value: firstItem[item],
+                  value: data[0][item],
                 });
                 break;
               case "object":
-                if (firstItem[item]) {
-                  if (firstItem[item].constructor !== Array)
+                if (data[0][item]) {
+                  if (data[0][item].constructor !== Array) {
                     dataChildren.push(item);
+                  }
                 } else {
                   dataProps.push({
                     name: item,
@@ -137,7 +161,9 @@ module.exports = {
     }
     return { dataProps, dataChildren };
   },
-  writeComponent: function (
+
+  // Writes a component file for the given data and filenames
+  writeComponent(
     data,
     baseFilename,
     componentName,
@@ -148,67 +174,65 @@ module.exports = {
     folderPrefix
   ) {
     if (data) {
-      // for root array just get the first element
+      // For root array just get the first element
       if (!parentComponentName && data.constructor === Array) {
-        data = data.constructor !== Array ? data : data[0] ? data[0] : [];
+        data = data[0];
       }
       if (typeof data === "object") {
-        let { dataProps, dataChildren } = this.manageData(data);
+        const { dataProps, dataChildren } = this.manageData(data);
         const template = require(`${templatesFolder}/${componentType}-component.jsx`, "UTF8");
-        const component = recursive_rendering(template, {
+        const component = recursiveRendering(template, {
           name: pascalCase(componentName),
           childComponent: dataChildren
-            .map((child) =>
-              module.exports.getComponentTag(child, componentType)
-            )
+            .map((child) => this.getComponentTag(child, componentType))
             .join(""),
           className: pascalCase(componentName),
           importCssStatement:
             depth === 0 ? `import './${componentName}.css';` : "",
           importChildStatement: dataChildren
-            .map((child) => module.exports.getComponentImport(child))
+            .map((child) => this.getComponentImport(child))
             .join(os.EOL),
           props: dataProps
-            .map((prop) => module.exports.getProp(prop, componentType))
+            .map((prop) => this.getProp(prop, componentType))
             .join(os.EOL),
         });
-
         let appDir, dir, filename;
-        const outputSubdir = folderPrefix + "_" + baseFilename;
+        const outputSubdir = `${folderPrefix}_${baseFilename}`;
         componentName = pascalCase(componentName);
         if (parentComponentName) {
           if (depth === 1) {
-            appDir = `${defaultPath}/${outputDir}/${outputSubdir}`;
+            appDir = path.join(defaultPath, outputDir, outputSubdir);
           } else {
-            appDir = `${defaultPath}/${outputDir}/${outputSubdir}/${parentComponentName}`;
+            appDir = path.join(
+              defaultPath,
+              outputDir,
+              outputSubdir,
+              parentComponentName
+            );
           }
-          // in testing
           if (depth > 2) {
             appDir = path.dirname(parentFilename);
           }
           createDir(appDir);
-          dir = `${appDir}/${componentName}`;
+          dir = path.join(appDir, componentName);
           createDir(dir);
-          filename = `${dir}/${componentName}.jsx`;
+          filename = path.join(dir, `${componentName}.jsx`);
         } else {
-          appDir = `${defaultPath}/${outputDir}/${outputSubdir}`;
-          dir = `${appDir}/`;
-          filename = `${dir}/${componentName}.js`;
+          appDir = path.join(defaultPath, outputDir, outputSubdir);
+          dir = path.join(appDir, "/");
+          filename = path.join(dir, `${componentName}.js`);
           createDir(appDir);
           createDir(dir);
         }
-        // this must be executed after each string literal replacement!!!
         const componentPrettified = prettier.format(component, {
           semi: true,
           parser: "babel",
         });
-        fs.writeFileSync(filename, componentPrettified, function (err) {
-          manageError(err, silentMode, `The file ${filename} was created!`);
-        });
-
-        dataChildren.map((child) => {
-          module.exports.writeComponent(
-            data.constructor !== Array ? data[child] : firstItem[child],
+        fs.writeFileSync(filename, componentPrettified);
+        manageError(null, `The file ${filename} was created!`);
+        dataChildren.forEach((child) => {
+          this.writeComponent(
+            data[child],
             baseFilename,
             child,
             defaultComponentType,
@@ -221,12 +245,13 @@ module.exports = {
       }
     }
   },
-  getRootComponent: function (componentName, filename, defaultFolderPrefix) {
-    const { baseFilename: baseFilename, data: data } =
-      module.exports.getDataFromFile(filename);
+
+  // Writes a root component for the given JSON file
+  getRootComponent(componentName, filename, defaultFolderPrefix) {
+    const { baseFilename, data } = this.getDataFromFile(filename);
     componentName = pascalCase(componentName);
     const folderPrefix = getFolderPrefix(defaultFolderPrefix);
-    module.exports.writeComponent(
+    this.writeComponent(
       data,
       baseFilename,
       componentName,
@@ -236,7 +261,6 @@ module.exports = {
       filename,
       folderPrefix
     );
-
-    module.exports.writeCss(baseFilename, folderPrefix);
+    this.writeCss(baseFilename, folderPrefix);
   },
 };

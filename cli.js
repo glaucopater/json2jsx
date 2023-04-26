@@ -1,37 +1,32 @@
 #!/usr/bin/env node
 const json2jsx = require("./index");
 const fs = require("fs");
-var path = require("path");
-const {
-  outputDir,
-  defaultRootComponentName,
-  defaultFolderPrefix,
-} = require("./config.json");
+const path = require("path");
+const { outputDir, defaultRootComponentName, defaultFolderPrefix } = require("./config.json");
 const { name, description, version } = require("./package.json");
 const versionKeywords = ["-v", "-ver", "--ver", "--version"];
 
-if (process.argv.length < 3) {
-  console.log(`${name}: ${description}`);
-} else if (process.argv[2]) {
-  // a parameter is passed
-  if (versionKeywords.includes(process.argv[2])) {
-    console.log(`${name} version: ${version}`);
-  } else if (fs.existsSync(process.argv[2])) {
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir);
-    }
-    const inputFile = process.argv[2];
-    const folderPrefix = process.argv[3]
-      ? process.argv[3]
-      : defaultFolderPrefix;
-    const absolutePath = path.resolve(inputFile);
-    json2jsx.getRootComponent(
-      defaultRootComponentName,
-      absolutePath,
-      folderPrefix
-    );
-    console.log(`${name}: output generated in the output folder.`);
-  } else {
-    console.log(`${process.argv[2]} not found`);
+const showHelp = () => console.log(`${name}: ${description}`);
+
+const showVersion = () => console.log(`${name} version: ${version}`);
+
+const generateOutput = (inputFile, folderPrefix) => {
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir);
   }
+  const absolutePath = path.resolve(inputFile);
+  json2jsx.getRootComponent(defaultRootComponentName, absolutePath, folderPrefix);
+  console.log(`${name}: output generated in the output folder.`);
+};
+
+const [,, param, folderPrefix = defaultFolderPrefix] = process.argv;
+
+if (!param) {
+  showHelp();
+} else if (versionKeywords.includes(param)) {
+  showVersion();
+} else if (fs.existsSync(param)) {
+  generateOutput(param, folderPrefix);
+} else {
+  console.log(`${param} not found`);
 }
