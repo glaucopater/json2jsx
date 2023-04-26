@@ -7,7 +7,7 @@ const {
   capitalize,
   createDir,
   pascalCase,
-} = require("./helpers/functions");
+} = require("./src/helpers/functions");
 const defaultPath = process.cwd();
 const prettier = require("prettier");
 const {
@@ -16,7 +16,7 @@ const {
   silentMode,
   defaultComponentType,
   defaultRootComponentName,
-} = require("./options.json");
+} = require("./config.json");
 
 require.extensions[".jsx"] = function (module, filename) {
   module.exports = fs.readFileSync(filename, "utf8");

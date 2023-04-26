@@ -6,7 +6,7 @@ const {
   outputDir,
   defaultRootComponentName,
   defaultFolderPrefix,
-} = require("./options.json");
+} = require("./config.json");
 const { name, description, version } = require("./package.json");
 const versionKeywords = ["-v", "-ver", "--ver", "--version"];
 

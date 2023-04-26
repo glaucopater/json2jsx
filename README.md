@@ -1,6 +1,6 @@
 # Json2jsx
 
-A NodeJs library that transforms a json view model (a plain .json file) into a set of statefull or stateless components.
+A Node Js library that transforms a json view model (a plain .json file) into a set of statefull or stateless components.
 
 # How to use it
 
@@ -143,9 +143,9 @@ export default class Sample extends Component {
 
 At the moment input file(s) must have .json extension otherwise this will raise an error.
 
-# Options
+# Config
 
-Default options are the following ones:
+Default configurations are the following ones:
 
 - outputDir (default "./output").
   The folder used for the generated file, it needs to be writeable.
@@ -170,7 +170,7 @@ Default options are the following ones:
 
 # Test
 
-npm run test
+- yarn test
 
 This will launch the test suite
 
