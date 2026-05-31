@@ -71,6 +71,6 @@ typings/
 .next
 
 
-output/*
+output/
 
 package-lock.json

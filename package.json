@@ -1,6 +1,6 @@
 {
   "name": "json2jsx",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "A node js library that transforms a json file into a set of react components",
   "main": "index.js",
   "engines": {
@@ -9,7 +9,11 @@
   "scripts": {
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
     "generate": "node cli.js",
-    "demo": "node cli.js json_samples/test.json test_run"
+    "demo": "node cli.js json_samples/test.json test_run",
+    "playground:setup": "node scripts/init-playground.js",
+    "playground:install": "node scripts/init-playground.js --install",
+    "playground": "node scripts/init-playground.js && yarn --cwd output/playground dev",
+    "start": "yarn demo && yarn playground"
   },
   "files": [
     "index.js",

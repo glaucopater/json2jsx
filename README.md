@@ -2,26 +2,51 @@
 
 A Node.js library (requires **Node 18+**) that transforms a JSON view model (a plain `.json` file) into a set of stateful or stateless React components.
 
-# How to use it
+## Quick start (browser preview)
 
-## Step 1:
+Generate components, then scaffold a local Vite preview under `output/playground/` (gitignored, created on demand):
 
-Create an empty project for React JS (for example using [Create React App](https://github.com/facebook/) )
+```bash
+yarn demo
+yarn playground:install   # once: copies scripts/playground → output/playground, installs deps
+yarn playground           # dev server → http://localhost:5173
+```
 
-or
+Generate and preview in one step:
 
-Create a new sandbox in [Codesandbox](https://codesandbox.io/)  
+```bash
+yarn start
+```
 
-## Step 2:
+To preview a different generated folder (after `yarn generate <file.json> <prefix>`):
 
-Create or download any json file (at the bottom of this readme you can find different examples).
+```powershell
+# Windows PowerShell
+$env:VITE_OUTPUT_DIR="my_prefix_basename"; yarn playground
+```
 
-i.e nasa.open.api.json
-[nasa.open.api.json](https://raw.githubusercontent.com/glaucopater/json2jsx/master/json_samples/nasa.open.api.json)
+```bash
+# macOS / Linux
+VITE_OUTPUT_DIR=my_prefix_basename yarn playground
+```
 
-## Step 3:
+The playground template lives in [`scripts/playground/`](scripts/playground/); `output/playground/` is ephemeral.
 
-Run json2jsx passing this json file as a parameter. This will create a folder containing any matching React component(s) according to the json structure.
+## How to use it
+
+### Step 1
+
+Create an empty React project (for example with [Create React App](https://github.com/facebook/create-react-app)) **or** create a sandbox on [CodeSandbox](https://codesandbox.io/).
+
+### Step 2
+
+Create or download a JSON file. Sample files are in [`json_samples/`](json_samples/). Example:
+
+- [nasa.open.api.json](https://raw.githubusercontent.com/glaucopater/json2jsx/master/json_samples/nasa.open.api.json)
+
+### Step 3
+
+Run json2jsx with the JSON file as the first argument. It creates a folder of React components that mirror the JSON structure.
 
 ```bash
 yarn demo
@@ -29,67 +54,66 @@ yarn demo
 json2jsx json_samples/nasa.open.api.json
 ```
 
-## Step 4:
+### Step 4
 
-Edit the default index.js pointing to the new created App.js (the root component default filename, that can be changed modifying the options).
-At this point you can already run npm start and see the result on your local node web server (usually running on localhost, port 3000)
+Point your app entry file at the generated root component (`App.js` by default; rename via `config.json`). Run your dev server (for example `yarn start` in a CRA app, usually http://localhost:3000).
 
-## Step 5 (optional):
+### Step 5 (optional)
 
-This step is totally optional but show the power of this tool.
-Edit the previous index.js file passing the content of the json file as a prop:
-i.e
+Pass the JSON data as props to see values rendered:
 
-<App {...require("./nasa.open.api.json")} />
+```jsx
+import App from "./path/to/output/.../App.js";
+import data from "./nasa.open.api.json";
 
-Save and go back to the browser to check the difference!
+<App {...data} />;
+```
 
 ![Tutorial Step 5](/tutorial/json2jsx_tutorial_step_5.jpg)
 
-## Step 6 (optional)
+### Step 6 (optional)
 
-At the moment the tool is agnostic respect to datatype and tag element, but this just looking at the page it is very easy to adjust any component or props.
-I.e changing the HdUrl and url the UI becomes:
+The tool is datatype-agnostic. Adjust generated components or prop markup as needed—for example, map `HdUrl` and `url` to images or links.
 
 ![Tutorial Step 6](/tutorial/json2jsx_tutorial_step_6.jpg)
 
-## Note about the styling
+### Styling
 
-There is small CSS that will show the structure of the components and subcomponents.
+Generated output includes a small CSS file that outlines the component tree so you can see structure before customizing styles.
 
-# Abstract and heuristic assumption (maybe boring part...)
+## Command line usage
 
-In every project or prototype using React JS I found, a json structure is always present.
-Generally the mapping of the view model is not 100% reflected into the UI, but many parts of the structures are.
-
-I.e. if inside a json file there is an array of objects, it is very likely that on UI side there will be a collection of sub components.
-
-Json --> Jsx file(s) with same structure found inside the Json
-
-# Command line usage
-
+```bash
 json2jsx data.json
+json2jsx data.json my_folder_prefix
+```
 
-This will create a folder structure inside the working directory as follows:
+Output layout (with `defaultFolderPrefix` set to `currentdate`, folders look like `YYYYMMDDHHmmss_data`):
 
-- /output/%datetime%_%data%/App.js
-- /output/%datetime%_%data%/Component1/Component1.jsx
-- /output/%datetime%\_%data%/Component2/Component2.jsx
-- /output/%datetime%\_%data%/Component3/SubComponent1/SubComponent1.jsx
+- `output/<prefix>_<data>/App.js`
+- `output/<prefix>_<data>/Component1/Component1.jsx`
+- `output/<prefix>_<data>/Component2/Component2.jsx`
+- `output/<prefix>_<data>/Component3/SubComponent1/SubComponent1.jsx`
 
-Every state-full react component (.jsx files) will be generated according to the existing template:
+Child components use `.jsx`; the root component is `.js` by default.
 
-For a json with this structure:
+### Example input (JSON)
 
-"game_indices": [{
-"game_index": 132,
-"version": {
-"name": "white-2",
-"url": "https://pokeapi.co/api/v2/version/22/"
+```json
+{
+  "game_indices": [
+    {
+      "game_index": 132,
+      "version": {
+        "name": "white-2",
+        "url": "https://pokeapi.co/api/v2/version/22/"
+      }
+    }
+  ]
 }
-}
+```
 
-The output component will be:
+### Example output (class / `statefull` template)
 
 ```javascript
 import React, { Component } from "react";
@@ -104,30 +128,27 @@ export default class Game_indices extends Component {
 }
 ```
 
-or for a json with this structure
+### Another input shape
 
-```javascript
+```json
 {
-    "sample": {
-      "propertyA": "string",
-      "propertyB": [
-        1,
-        2,
-        3
-      ],
-      "propertyC": {
-        "subProperty1": 123,
-        "subProperty2": "abc"
-      }
+  "sample": {
+    "propertyA": "string",
+    "propertyB": [1, 2, 3],
+    "propertyC": {
+      "subProperty1": 123,
+      "subProperty2": "abc"
     }
   }
+}
 ```
 
-The output component will be:
+### Matching output
 
 ```javascript
 import React, { Component } from "react";
 import PropertyC from "./PropertyC/PropertyC";
+
 export default class Sample extends Component {
   componentDidMount() {
     console.log(this.props);
@@ -142,68 +163,61 @@ export default class Sample extends Component {
 }
 ```
 
-# Caveat
+## Caveats
 
-At the moment input file(s) must have .json extension otherwise this will raise an error.
+- Input files must use the `.json` extension or generation will fail.
+- Root JSON arrays only use the **first** element to infer shape.
+- Config key `statefull` is intentional (legacy spelling) for class-based templates.
 
-# Config
+## Configuration
 
-Default configurations are the following ones:
+Defaults live in [`config.json`](config.json):
 
-- outputDir (default "./output").
-  The folder used for the generated file, it needs to be writeable.
+| Option | Default | Description |
+|--------|---------|-------------|
+| `outputDir` | `./output` | Writable folder for generated files |
+| `templatesFolder` | `./src/react-templates` | Component templates |
+| `silentMode` | `false` | When `false`, log file creation messages |
+| `defaultComponentType` | `functional` | `functional` or `statefull` (class components) |
+| `defaultRootComponentName` | `App` | Root component base name |
+| `defaultFolderPrefix` | `currentdate` | Output folder prefix; `currentdate` → timestamp |
+| `cleanUpTestOutput` | `true` | Remove integration-test output after `yarn test` |
 
-- templatesFolder (default: `./src/react-templates`).
-  The folder containing the template used by the library itself.
-
-- silentMode (default: true).
-  Show console message if set to false
-
-- defaultComponentType (default: `"statefull"` in config — legacy spelling).
-  Use `"statefull"` for class components or `"functional"` for function components.
-
-- defaultRootComponentName (default: "App").
-  The root component filename.
-
-- defaultFolderPrefix: (default: "currentdate")
-  The prefix used for the name of the main folder. With "currentdate" the folder will be prefixed with the current date
-
-- cleanUpTestOutput: (default: true)
-  Clean unit tests generated folders and files
-
-# Programmatic usage
+## Programmatic usage
 
 `getRootComponent` is async (Prettier 3 formats output asynchronously):
 
 ```javascript
 const json2jsx = require("json2jsx");
+
 await json2jsx.getRootComponent("App", "./data.json", "my_prefix");
 ```
 
-# Test
+## Test
 
 ```bash
 yarn test
 ```
 
-This will launch the test suite.
+Sample JSON files for manual runs are in [`json_samples/`](json_samples/). When installed from npm, they also appear under `node_modules/json2jsx/json_samples/`.
 
-I have included also some sample json files in order to test different scenarios.
-They are stored inside the module folder (node_modules/json2jsx/json_samples/)
-
-The sources of this json are:
+### Sample data sources
 
 - [NASA Open API](https://api.nasa.gov/#getting-started)
 - [The Star Wars API](https://swapi.co/)
-- [Game of Thrones API](https://anapioficeandfire.com)
-- [Pokemon API](https://pokeapi.co/api/v2/pokemon/ditto)
+- [A Song of Ice and Fire API](https://anapioficeandfire.com)
+- [Pokémon API](https://pokeapi.co/api/v2/pokemon/ditto)
 - [ISS Position API](http://api.open-notify.org/iss-now.json)
 
-You can find other APIs here:
+More public APIs:
 
-- https://shkspr.mobi/blog/2016/05/easy-apis-without-authentication
-- https://www.diycode.cc/projects/toddmotto/public-apis
+- [Easy APIs without authentication](https://shkspr.mobi/blog/2016/05/easy-apis-without-authentication)
+- [public-apis (toddmotto)](https://github.com/toddmotto/public-apis)
 
-Thanks to
-[andrea falzetti](http://andreafalzetti.github.io/blog/2016/10/22/render-es6-javascript-template-literals-contained-variable.html)
-for letting me skip the usage of eval/new Function
+## Background
+
+In most React projects, a JSON (or JSON-like) view model sits behind the UI. The mapping is rarely one-to-one, but nested objects and arrays often correspond to components and lists. Json2jsx generates JSX files that follow the same nesting as your JSON.
+
+## Thanks
+
+[Andrea Falzetti](http://andreafalzetti.github.io/blog/2016/10/22/render-es6-javascript-template-literals-contained-variable.html) for the template-literal approach that avoids `eval` / `new Function`.
