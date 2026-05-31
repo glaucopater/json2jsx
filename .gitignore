@@ -36,6 +36,16 @@ build/Release
 node_modules/
 jspm_packages/
 
+# Yarn PnP (project uses node-modules linker)
+.pnp.cjs
+.pnp.loader.mjs
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
 # TypeScript v1 declaration files
 typings/
 
@@ -61,6 +71,6 @@ typings/
 .next
 
 
-output/*
+output/
 
 package-lock.json

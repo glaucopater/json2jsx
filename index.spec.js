@@ -1,100 +1,96 @@
 const fs = require("fs");
+const path = require("path");
+const { execFileSync } = require("child_process");
 const {
   outputDir,
   defaultRootComponentName,
-  cleanUpTestOutput
+  cleanUpTestOutput,
 } = require("./config.json");
 const { getFolderPrefix } = require("./src/helpers/functions");
 
-describe("Test Generated Component according to the options, default folder name set to current date", () => {
-  const defaultFolderPrefix = getFolderPrefix("currentdate");
+const node = process.execPath;
+const cliPath = path.join(__dirname, "cli.js");
+const inputFile = path.join(__dirname, "json_samples", "test.json");
+
+function runCli(folderPrefix) {
+  execFileSync(node, [cliPath, inputFile, folderPrefix], {
+    cwd: __dirname,
+    stdio: "pipe",
+  });
+}
+
+function removeOutputTree(appDir) {
+  if (!fs.existsSync(appDir)) {
+    return;
+  }
+  fs.rmSync(appDir, { recursive: true, force: true });
+}
+
+function buildPaths(folderPrefix) {
   const componentName = "MyTestComponent";
   const subComponentName = "MyTestSubComponent";
-  const outputFile = `./output/${defaultFolderPrefix}_test/${componentName}/${componentName}.jsx`;
+  const appDir = path.join(outputDir, `${folderPrefix}_test`);
+  return {
+    componentName,
+    subComponentName,
+    appDir,
+    rootFile: path.join(appDir, `${defaultRootComponentName}.js`),
+    rootCssFile: path.join(appDir, `${defaultRootComponentName}.css`),
+    componentFolder: path.join(appDir, componentName),
+    subComponentFolder: path.join(appDir, componentName, subComponentName),
+    componentFile: path.join(appDir, componentName, `${componentName}.jsx`),
+    subComponentFile: path.join(
+      appDir,
+      componentName,
+      subComponentName,
+      `${subComponentName}.jsx`
+    ),
+  };
+}
 
-  const appDir = `./output/${defaultFolderPrefix}_test/`;
-  const rootFile = `./output/${defaultFolderPrefix}_test/${defaultRootComponentName}.js`;
-  const rootCssFile = `./output/${defaultFolderPrefix}_test/${defaultRootComponentName}.css`;
-  const componentFolder = `./output/${defaultFolderPrefix}_test/${componentName}/`;
-  const subComponentFolder = `./output/${defaultFolderPrefix}_test/${componentName}/${subComponentName}`;
-  const subComponentOutputFile = `./output/${defaultFolderPrefix}_test/${componentName}/${subComponentName}/${subComponentName}.jsx`;
+function assertGeneratedStructure(paths) {
+  expect(fs.existsSync(paths.appDir)).toBe(true);
+  expect(fs.existsSync(paths.componentFolder)).toBe(true);
+  expect(fs.existsSync(paths.subComponentFolder)).toBe(true);
+  expect(fs.existsSync(paths.rootFile)).toBe(true);
+  expect(fs.existsSync(paths.rootCssFile)).toBe(true);
 
-  it("creates a folder containing with the react component structure", () => {
-    const inputFile = "./json_samples/test.json";
-    if (fs.existsSync(inputFile)) {
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir);
-      }
+  const rootSource = fs.readFileSync(paths.rootFile, "utf8");
+  expect(rootSource).toContain("const App = (props)");
+  expect(rootSource).toContain("MyTestComponent");
 
-      //launch the command line mode
-      const execSync = require("child_process").execSync;
-      execSync(`node cli.js ${inputFile} ${defaultFolderPrefix}`);
+  const childSource = fs.readFileSync(paths.componentFile, "utf8");
+  expect(childSource).toContain("MyTestSubComponent");
+}
 
-      expect(fs.existsSync(outputDir)).toBe(true);
-      expect(fs.existsSync(appDir)).toBe(true);
-      expect(fs.existsSync(componentFolder)).toBe(true);
-      expect(fs.existsSync(subComponentFolder)).toBe(true);
-      expect(fs.existsSync(rootFile)).toBe(true);
-      expect(fs.existsSync(rootCssFile)).toBe(true);
+describe.each([
+  ["currentdate", () => getFolderPrefix("currentdate")],
+  ["fixed prefix", () => getFolderPrefix("Abc_123")],
+])("generated component tree (%s)", (_label, getPrefix) => {
+  let paths;
+  let folderPrefix;
 
-      if (cleanUpTestOutput) {
-        //cleanup restoring the previous status of the file system
-        fs.unlinkSync(outputFile);
-        fs.unlinkSync(rootFile);
-        fs.unlinkSync(rootCssFile);
-        fs.unlinkSync(subComponentOutputFile);
-        fs.rmdirSync(subComponentFolder);
-        fs.rmdirSync(componentFolder);
-        fs.rmdirSync(appDir);
-        expect(fs.existsSync(appDir)).toBe(false);
-      }
+  beforeAll(() => {
+    if (!fs.existsSync(inputFile)) {
+      return;
+    }
+    fs.mkdirSync(outputDir, { recursive: true });
+    folderPrefix = getPrefix();
+    paths = buildPaths(folderPrefix);
+    removeOutputTree(paths.appDir);
+    runCli(folderPrefix);
+  });
+
+  afterAll(() => {
+    if (cleanUpTestOutput && paths) {
+      removeOutputTree(paths.appDir);
     }
   });
-});
 
-describe("Test Generated Component according to the options, default folder is generic", () => {
-  const defaultFolderPrefix = getFolderPrefix("Abc_123");
-  const componentName = "MyTestComponent";
-  const subComponentName = "MyTestSubComponent";
-  const outputFile = `./output/${defaultFolderPrefix}_test/${componentName}/${componentName}.jsx`;
-
-  const appDir = `./output/${defaultFolderPrefix}_test/`;
-  const rootFile = `./output/${defaultFolderPrefix}_test/${defaultRootComponentName}.js`;
-  const rootCssFile = `./output/${defaultFolderPrefix}_test/${defaultRootComponentName}.css`;
-  const componentFolder = `./output/${defaultFolderPrefix}_test/${componentName}/`;
-  const subComponentFolder = `./output/${defaultFolderPrefix}_test/${componentName}/${subComponentName}`;
-  const subComponentOutputFile = `./output/${defaultFolderPrefix}_test/${componentName}/${subComponentName}/${subComponentName}.jsx`;
-
-  it("creates a folder containing with the react component structure", () => {
-    const inputFile = "./json_samples/test.json";
-    if (fs.existsSync(inputFile)) {
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir);
-      }
-
-      //launch the command line mode
-      const execSync = require("child_process").execSync;
-      execSync(`node cli.js ${inputFile} ${defaultFolderPrefix}`);
-
-      expect(fs.existsSync(outputDir)).toBe(true);
-      expect(fs.existsSync(appDir)).toBe(true);
-      expect(fs.existsSync(componentFolder)).toBe(true);
-      expect(fs.existsSync(subComponentFolder)).toBe(true);
-      expect(fs.existsSync(rootFile)).toBe(true);
-      expect(fs.existsSync(rootCssFile)).toBe(true);
-
-      //cleanup restoring the previous status of the file system
-
-      if (cleanUpTestOutput) {
-        fs.unlinkSync(outputFile);
-        fs.unlinkSync(rootFile);
-        fs.unlinkSync(rootCssFile);
-        fs.unlinkSync(subComponentOutputFile);
-        fs.rmdirSync(subComponentFolder);
-        fs.rmdirSync(componentFolder);
-        fs.rmdirSync(appDir);
-        expect(fs.existsSync(appDir)).toBe(false);
-      }
+  it("creates react component files with expected structure", () => {
+    if (!fs.existsSync(inputFile)) {
+      return;
     }
+    assertGeneratedStructure(paths);
   });
 });
