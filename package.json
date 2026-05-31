@@ -11,10 +11,14 @@
     "generate": "node cli.js",
     "demo": "node cli.js json_samples/test.json test_run",
     "demo:gallery": "node cli.js json_samples/media-gallery.json gallery",
+    "demo:pokemon": "node cli.js json_samples/pokemon.json pokemon",
     "playground:setup": "node scripts/init-playground.js",
     "playground:install": "node scripts/init-playground.js --install",
-    "playground": "node scripts/init-playground.js && yarn --cwd output/playground dev",
-    "start": "yarn demo && yarn playground"
+    "playground": "node scripts/init-playground.js && node scripts/run-playground.js",
+    "preview": "node scripts/generate-and-playground.js",
+    "preview:gallery": "node scripts/generate-and-playground.js json_samples/media-gallery.json gallery",
+    "preview:pokemon": "node scripts/generate-and-playground.js json_samples/pokemon.json pokemon",
+    "start": "node scripts/generate-and-playground.js"
   },
   "files": [
     "index.js",

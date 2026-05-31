@@ -59,11 +59,27 @@ module.exports = {
   },
   isImageProp: function (name) {
     const key = name.toLowerCase();
-    return (
-      /(^|_)(image|img|photo|picture|thumbnail|avatar|icon|logo|poster|cover|hero)(_|$)/.test(
-        key
-      ) || /(url|src|image|photo|thumbnail|avatar|icon)$/.test(key)
+    if (key === "url" || key === "href" || key === "link") {
+      return false;
+    }
+    const imageToken =
+      /(^|_)(image|images|img|photo|photos|picture|pictures|thumbnail|thumbnails|avatar|avatars|icon|icons|logo|logos|poster|posters|cover|covers|hero|sprite|sprites)(_|$|[a-z])/;
+    if (imageToken.test(key)) {
+      return true;
+    }
+    return /(image|img|photo|picture|thumbnail|avatar|icon|logo|poster|cover|hero|sprite)(url|src|uri)$/.test(
+      key
     );
+  },
+  isLinkProp: function (name) {
+    if (module.exports.isImageProp(name)) {
+      return false;
+    }
+    const key = name.toLowerCase();
+    if (key === "url" || key === "href" || key === "link") {
+      return true;
+    }
+    return /(?:url|href|link)$/.test(key);
   },
   getPropLabel: function (name) {
     return name

@@ -5,6 +5,22 @@ const cliPath = path.join(__dirname, "cli.js");
 const node = process.execPath;
 
 describe("cli", () => {
+  test("no args prints help with version", () => {
+    const { version } = require("./package.json");
+    const output = execFileSync(node, [cliPath], { encoding: "utf8" });
+    expect(output).toContain(`json2jsx v${version}`);
+    expect(output).toContain("Usage:");
+    expect(output).toContain("json_samples/test.json");
+  });
+
+  test("--help prints help", () => {
+    const output = execFileSync(node, [cliPath, "--help"], {
+      encoding: "utf8",
+    });
+    expect(output).toContain("--version");
+    expect(output).toContain("folderPrefix");
+  });
+
   test("--version prints package version", () => {
     const { version } = require("./package.json");
     const output = execFileSync(node, [cliPath, "--version"], {

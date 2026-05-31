@@ -37,6 +37,17 @@ describe("json2jsx API", () => {
     );
   });
 
+  test("getComponentTag maps nested array rows as separate children", () => {
+    const tag = json2jsx.getComponentTag(
+      "MyTestSubComponent",
+      "functional",
+      [[[1, 2, 3], [10, 20, 30]]]
+    );
+    expect(tag).toContain("props.MyTestSubComponent[0]?.map");
+    expect(tag).toContain("items={item}");
+    expect(tag).toContain("<MyTestSubComponent");
+  });
+
   test("getComponentTag uses this.props for statefull components", () => {
     expect(json2jsx.getComponentTag("foo", "statefull")).toBe(
       "<Foo {...this.props.foo} />"
@@ -68,6 +79,33 @@ describe("json2jsx API", () => {
         "functional"
       )
     ).toContain("<figcaption>");
+  });
+
+  test("getProp renders checkbox for booleans", () => {
+    const prop = json2jsx.getProp(
+      { name: "is_hidden", value: true, valueType: "boolean" },
+      "functional"
+    );
+    expect(prop).toContain('type="checkbox"');
+    expect(prop).toContain("checked={!!props.is_hidden}");
+    expect(prop).toContain("readOnly");
+  });
+
+  test("manageData classifies booleans", () => {
+    const { dataProps } = json2jsx.manageData({ is_default: true, name: "x" });
+    expect(dataProps.find((p) => p.name === "is_default").valueType).toBe(
+      "boolean"
+    );
+  });
+
+  test("getProp renders anchor for url fields", () => {
+    const prop = json2jsx.getProp(
+      { name: "url", value: "https://example.com" },
+      "functional"
+    );
+    expect(prop).toContain("<a href={props.url}");
+    expect(prop).toContain('rel="noopener noreferrer"');
+    expect(prop).not.toContain("<img");
   });
 
   test("getProp renders labels and formats arrays", () => {
@@ -116,5 +154,14 @@ describe("json2jsx API", () => {
     const { baseFilename, data } = json2jsx.getDataFromFile(file);
     expect(baseFilename).toBe("test");
     expect(data.MyTestComponent).toBeDefined();
+  });
+
+  test("getDataSource resolves children from first array item", () => {
+    const raw = [{ ability: { name: "limber" }, slot: 1 }];
+    const normalized = json2jsx.normalizeComponentData(raw);
+    const source = json2jsx.getDataSource(raw, normalized);
+    expect(json2jsx.getChildData(source, "ability")).toEqual({
+      name: "limber",
+    });
   });
 });

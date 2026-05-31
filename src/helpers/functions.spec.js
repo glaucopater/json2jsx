@@ -5,6 +5,7 @@ const {
   pascalCase,
   pad2,
   isImageProp,
+  isLinkProp,
 } = require("./functions");
 
 test("recursiveRendering", () => {
@@ -38,5 +39,21 @@ test("pascalCase", () => {
 test("isImageProp", () => {
   expect(isImageProp("heroImageUrl")).toBe(true);
   expect(isImageProp("thumbnailUrl")).toBe(true);
+  expect(isImageProp("fullImageUrl")).toBe(true);
+  expect(isImageProp("avatarUrl")).toBe(true);
+  expect(isImageProp("iconUrl")).toBe(true);
+  expect(isImageProp("heroImage")).toBe(true);
+  expect(isImageProp("url")).toBe(false);
+  expect(isImageProp("apiUrl")).toBe(false);
+  expect(isImageProp("profileUrl")).toBe(false);
   expect(isImageProp("title")).toBe(false);
+});
+
+test("isLinkProp", () => {
+  expect(isLinkProp("url")).toBe(true);
+  expect(isLinkProp("apiUrl")).toBe(true);
+  expect(isLinkProp("href")).toBe(true);
+  expect(isLinkProp("heroImageUrl")).toBe(false);
+  expect(isLinkProp("thumbnailUrl")).toBe(false);
+  expect(isLinkProp("title")).toBe(false);
 });

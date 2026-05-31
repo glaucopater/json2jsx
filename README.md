@@ -9,11 +9,35 @@ A Node.js library (requires **Node 18+**) that turns a JSON view model into a tr
 - **Arrays of primitives** → comma-separated text with a label
 - **Image-like fields** (`thumbnailUrl`, `heroImage`, `avatar`, …) → `<img>` plus caption
 - **Scalar fields** → labeled text (`Title: …`, `Summary: …`)
+- **Booleans** → read-only checkbox
+- **URL fields** (non-image) → `<a href="…">` link
 - **Functional** (default) or **statefull** (class) templates via `config.json`
 
 ## Quick start (browser preview)
 
-Recommended: the [media gallery](#media-gallery-sample) sample (nested objects, lists, images).
+**One command** — generate components, install the playground if needed, and open the dev server:
+
+```bash
+yarn preview              # test.json → http://localhost:5173
+yarn preview:gallery      # media-gallery sample
+yarn preview:pokemon      # pokemon (PokéAPI) sample
+```
+
+Custom JSON and output prefix:
+
+```bash
+yarn preview -- json_samples/pokemon.json pokemon
+```
+
+Generate and scaffold only (no dev server):
+
+```bash
+yarn preview -- --setup-only
+```
+
+`yarn start` is an alias for `yarn preview` (default `test.json`).
+
+### Manual steps (optional)
 
 ```bash
 yarn demo:gallery
@@ -21,35 +45,27 @@ yarn playground:install   # once
 yarn playground             # http://localhost:5173
 ```
 
-The playground loads `json_samples/media-gallery.json` when `VITE_OUTPUT_DIR` starts with `gallery` (as with `yarn demo:gallery`). Otherwise it uses `json_samples/test.json`.
-
-Minimal sample:
-
-```bash
-yarn demo
-yarn playground
-```
-
-Regenerate and open the dev server:
-
-```bash
-yarn start
-```
-
-(`yarn start` runs `yarn demo` then `yarn playground`; run `yarn playground:install` first if you have never installed playground dependencies.)
+The playground picks the matching `json_samples/<name>.json` from the generated folder name (`<prefix>_<basename>`, e.g. `gallery_media-gallery` → `media-gallery.json`).
 
 ### Preview another generated folder
 
-After `yarn generate json_samples/nasa.open.api.json nasa` (or any file + prefix):
-
-```powershell
-# Windows PowerShell
-$env:VITE_OUTPUT_DIR="nasa_nasa.open.api"; yarn playground
-```
+After `json2jsx json_samples/test.json test_run` (or `yarn demo`), run:
 
 ```bash
-# macOS / Linux
-VITE_OUTPUT_DIR=nasa_nasa.open.api yarn playground
+yarn playground
+```
+
+The playground picks `output/test_run_test/` by default, or the **newest** folder under `output/` that contains `App.js`.
+
+For a specific folder (timestamp or custom prefix):
+
+```powershell
+# Clear a wrong folder name from an earlier session
+Remove-Item Env:VITE_OUTPUT_DIR -ErrorAction SilentlyContinue
+
+yarn playground -- test_run_test
+# or
+node scripts/run-playground.js 20260531143000_test
 ```
 
 The playground template is copied from [`scripts/playground/`](scripts/playground/) into gitignored `output/playground/`.
@@ -58,13 +74,18 @@ The playground template is copied from [`scripts/playground/`](scripts/playgroun
 
 | Script | Description |
 |--------|-------------|
-| `yarn demo` | Generate from `json_samples/test.json` → `output/test_run_test/` |
-| `yarn demo:gallery` | Generate from `json_samples/media-gallery.json` → `output/gallery_media-gallery/` |
+| `yarn preview` | Generate + playground install + Vite dev server (default `test.json`) |
+| `yarn preview:gallery` | Same for `media-gallery.json` |
+| `yarn preview:pokemon` | Same for `pokemon.json` |
+| `yarn preview -- <file.json> [prefix]` | Custom input; add `--setup-only` to skip the dev server |
+| `yarn start` | Alias for `yarn preview` |
+| `yarn demo` | Generate only → `output/test_run_test/` |
+| `yarn demo:gallery` | Generate only → `output/gallery_media-gallery/` |
+| `yarn demo:pokemon` | Generate only → `output/pokemon_pokemon/` |
 | `yarn generate -- <file.json> [prefix]` | Custom input (via `node cli.js`) |
 | `yarn playground:setup` | Copy playground template only |
 | `yarn playground:install` | Setup + `yarn install` in `output/playground/` |
-| `yarn playground` | Sync template and start Vite |
-| `yarn start` | `yarn demo` + `yarn playground` |
+| `yarn playground` | Sync template and start Vite (existing output) |
 | `yarn test` | Jest suite |
 
 ## Command line
