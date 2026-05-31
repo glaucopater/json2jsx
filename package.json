@@ -3,9 +3,20 @@
   "version": "1.2.1",
   "description": "A node js library that transforms a json file into a set of react components",
   "main": "index.js",
-  "scripts": {
-    "test": "jest"
+  "engines": {
+    "node": ">=18"
   },
+  "scripts": {
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "generate": "node cli.js",
+    "demo": "node cli.js json_samples/test.json test_run"
+  },
+  "files": [
+    "index.js",
+    "cli.js",
+    "config.json",
+    "src/"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/glaucopater/json2jsx.git"
@@ -21,13 +32,11 @@
     "url": "https://github.com/glaucopater/json2jsx/issues"
   },
   "homepage": "http://flagg.altervista.org/blog/json2jsx/",
-  "bin": {
-    "json2jsx": "cli.js"
-  },
+  "bin": "cli.js",
   "devDependencies": {
-    "jest": "29.3.1"
+    "jest": "^30.0.0"
   },
   "dependencies": {
-    "prettier": "2.7.1"
+    "prettier": "^3.6.0"
   }
 }

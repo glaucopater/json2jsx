@@ -1,6 +1,6 @@
 # Json2jsx
 
-A Node Js library that transforms a json view model (a plain .json file) into a set of statefull or stateless components.
+A Node.js library (requires **Node 18+**) that transforms a JSON view model (a plain `.json` file) into a set of stateful or stateless React components.
 
 # How to use it
 
@@ -23,8 +23,11 @@ i.e nasa.open.api.json
 
 Run json2jsx passing this json file as a parameter. This will create a folder containing any matching React component(s) according to the json structure.
 
-i.e. 
-json2jsx .\json_samples\nasa.open.api.json
+```bash
+yarn demo
+# or
+json2jsx json_samples/nasa.open.api.json
+```
 
 ## Step 4:
 
@@ -69,8 +72,8 @@ json2jsx data.json
 
 This will create a folder structure inside the working directory as follows:
 
-- /output/%datetime%\_%data%/App.jsx
-- /output/%datetime%\_%data%/Component1/Component1.jsx
+- /output/%datetime%_%data%/App.js
+- /output/%datetime%_%data%/Component1/Component1.jsx
 - /output/%datetime%\_%data%/Component2/Component2.jsx
 - /output/%datetime%\_%data%/Component3/SubComponent1/SubComponent1.jsx
 
@@ -150,14 +153,14 @@ Default configurations are the following ones:
 - outputDir (default "./output").
   The folder used for the generated file, it needs to be writeable.
 
-- templatesFolder (default: "./react-templates").
+- templatesFolder (default: `./src/react-templates`).
   The folder containing the template used by the library itself.
 
 - silentMode (default: true).
   Show console message if set to false
 
-- defaultComponentType (default: "statefull").
-  It can be "statefull" or "functional".
+- defaultComponentType (default: `"statefull"` in config — legacy spelling).
+  Use `"statefull"` for class components or `"functional"` for function components.
 
 - defaultRootComponentName (default: "App").
   The root component filename.
@@ -168,11 +171,22 @@ Default configurations are the following ones:
 - cleanUpTestOutput: (default: true)
   Clean unit tests generated folders and files
 
+# Programmatic usage
+
+`getRootComponent` is async (Prettier 3 formats output asynchronously):
+
+```javascript
+const json2jsx = require("json2jsx");
+await json2jsx.getRootComponent("App", "./data.json", "my_prefix");
+```
+
 # Test
 
-- yarn test
+```bash
+yarn test
+```
 
-This will launch the test suite
+This will launch the test suite.
 
 I have included also some sample json files in order to test different scenarios.
 They are stored inside the module folder (node_modules/json2jsx/json_samples/)

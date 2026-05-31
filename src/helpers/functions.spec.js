@@ -2,6 +2,8 @@ const {
   recursiveRendering,
   getCurrentDate,
   capitalize,
+  pascalCase,
+  pad2,
 } = require("./functions");
 
 test("recursiveRendering", () => {
@@ -15,9 +17,19 @@ test("recursiveRendering", () => {
 });
 
 test("getCurrentDate", () => {
-  expect(getCurrentDate().length).toBeGreaterThan(10);
+  expect(getCurrentDate()).toMatch(/^\d{14}$/);
+});
+
+test("pad2", () => {
+  expect(pad2(3)).toBe("03");
+  expect(pad2(12)).toBe("12");
 });
 
 test("capitalize", () => {
   expect(capitalize("abc")).toBe("Abc");
+});
+
+test("pascalCase", () => {
+  expect(pascalCase("hello")).toBe("Hello");
+  expect(pascalCase("my_component")).toBe("MyComponent");
 });

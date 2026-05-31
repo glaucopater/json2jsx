@@ -25,36 +25,19 @@ module.exports = {
       ? module.exports.getCurrentDate()
       : defaultFolderPrefix;
   },
+  pad2: function (value) {
+    return String(value).padStart(2, "0");
+  },
   getCurrentDate: function () {
-    const dateToken = [];
     const now = new Date();
-    dateToken.push(now.getFullYear());
-    let month = now.getMonth() + 1;
-    if (month.length == 1) {
-      month = "0" + month;
-    }
-    dateToken.push(month);
-    let day = now.getDate();
-    if (day.length === 1) {
-      day = "0" + day;
-    }
-    dateToken.push(day);
-    let hour = now.getHours();
-    if (hour.length === 1) {
-      hour = "0" + hour;
-    }
-    dateToken.push(hour);
-    let minute = now.getMinutes();
-    if (minute.length === 1) {
-      minute = "0" + minute;
-    }
-    dateToken.push(minute);
-    let second = now.getSeconds();
-    if (second.length === 1) {
-      second = "0" + second;
-    }
-    dateToken.push(second);
-    return dateToken.join("");
+    return [
+      now.getFullYear(),
+      module.exports.pad2(now.getMonth() + 1),
+      module.exports.pad2(now.getDate()),
+      module.exports.pad2(now.getHours()),
+      module.exports.pad2(now.getMinutes()),
+      module.exports.pad2(now.getSeconds()),
+    ].join("");
   },
   capitalize: function (name) {
     const [first, ...other] = name;
@@ -72,8 +55,6 @@ module.exports = {
     } else return module.exports.capitalize(name);
   },
   createDir: function (dirName) {
-    if (!fs.existsSync(dirName)) {
-      fs.mkdirSync(dirName);
-    }
+    fs.mkdirSync(dirName, { recursive: true });
   },
 };
