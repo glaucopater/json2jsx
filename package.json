@@ -7,7 +7,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "test": "vitest run",
     "generate": "node cli.js",
     "demo": "node cli.js json_samples/test.json test_run",
     "demo:gallery": "node cli.js json_samples/media-gallery.json gallery",
@@ -42,10 +42,10 @@
   },
   "homepage": "http://flagg.altervista.org/blog/json2jsx/",
   "bin": "cli.js",
-  "devDependencies": {
-    "jest": "^30.0.0"
-  },
   "dependencies": {
     "prettier": "^3.6.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.7"
   }
 }
