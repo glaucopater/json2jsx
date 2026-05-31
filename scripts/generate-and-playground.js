@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const fs = require("fs");
 const path = require("path");
-const { execSync } = require("child_process");
+const { execFileSync } = require("child_process");
 const json2jsx = require("../index");
 const { getFolderPrefix } = require("../src/helpers/functions");
 
@@ -32,7 +32,7 @@ async function main() {
   console.log(`Generating from ${path.relative(repoRoot, inputFile)} → output/${outputDirName}/`);
   await json2jsx.getRootComponent("App", inputFile, folderPrefix);
 
-  execSync(`node "${initScript}" --install`, {
+  execFileSync(process.execPath, [initScript, "--install"], {
     cwd: repoRoot,
     stdio: "inherit",
   });
@@ -41,7 +41,7 @@ async function main() {
 
   if (serve) {
     console.log(`Starting preview for output/${outputDirName}/ …`);
-    execSync(`node "${runScript}" ${outputDirName}`, {
+    execFileSync(process.execPath, [runScript, outputDirName], {
       cwd: repoRoot,
       stdio: "inherit",
       env: {
