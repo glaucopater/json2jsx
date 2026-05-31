@@ -1,191 +1,176 @@
 # Json2jsx
 
-A Node.js library (requires **Node 18+**) that transforms a JSON view model (a plain `.json` file) into a set of stateful or stateless React components.
+A Node.js library (requires **Node 18+**) that turns a JSON view model into a tree of React components. It reads structure from your JSON, fills JSX templates, formats with Prettier, and writes files under `output/`.
+
+## Features
+
+- Nested **objects** → child components
+- **Arrays of objects** → one component per item (`.map()` in the parent)
+- **Arrays of primitives** → comma-separated text with a label
+- **Image-like fields** (`thumbnailUrl`, `heroImage`, `avatar`, …) → `<img>` plus caption
+- **Scalar fields** → labeled text (`Title: …`, `Summary: …`)
+- **Functional** (default) or **statefull** (class) templates via `config.json`
 
 ## Quick start (browser preview)
 
-Generate components, then scaffold a local Vite preview under `output/playground/` (gitignored, created on demand):
+Recommended: the [media gallery](#media-gallery-sample) sample (nested objects, lists, images).
+
+```bash
+yarn demo:gallery
+yarn playground:install   # once
+yarn playground             # http://localhost:5173
+```
+
+The playground loads `json_samples/media-gallery.json` when `VITE_OUTPUT_DIR` starts with `gallery` (as with `yarn demo:gallery`). Otherwise it uses `json_samples/test.json`.
+
+Minimal sample:
 
 ```bash
 yarn demo
-yarn playground:install   # once: copies scripts/playground → output/playground, installs deps
-yarn playground           # dev server → http://localhost:5173
+yarn playground
 ```
 
-Generate and preview in one step:
+Regenerate and open the dev server:
 
 ```bash
 yarn start
 ```
 
-To preview a different generated folder (after `yarn generate <file.json> <prefix>`):
+(`yarn start` runs `yarn demo` then `yarn playground`; run `yarn playground:install` first if you have never installed playground dependencies.)
+
+### Preview another generated folder
+
+After `yarn generate json_samples/nasa.open.api.json nasa` (or any file + prefix):
 
 ```powershell
 # Windows PowerShell
-$env:VITE_OUTPUT_DIR="my_prefix_basename"; yarn playground
+$env:VITE_OUTPUT_DIR="nasa_nasa.open.api"; yarn playground
 ```
 
 ```bash
 # macOS / Linux
-VITE_OUTPUT_DIR=my_prefix_basename yarn playground
+VITE_OUTPUT_DIR=nasa_nasa.open.api yarn playground
 ```
 
-The playground template lives in [`scripts/playground/`](scripts/playground/); `output/playground/` is ephemeral.
+The playground template is copied from [`scripts/playground/`](scripts/playground/) into gitignored `output/playground/`.
 
-## How to use it
+## Scripts
 
-### Step 1
+| Script | Description |
+|--------|-------------|
+| `yarn demo` | Generate from `json_samples/test.json` → `output/test_run_test/` |
+| `yarn demo:gallery` | Generate from `json_samples/media-gallery.json` → `output/gallery_media-gallery/` |
+| `yarn generate -- <file.json> [prefix]` | Custom input (via `node cli.js`) |
+| `yarn playground:setup` | Copy playground template only |
+| `yarn playground:install` | Setup + `yarn install` in `output/playground/` |
+| `yarn playground` | Sync template and start Vite |
+| `yarn start` | `yarn demo` + `yarn playground` |
+| `yarn test` | Jest suite |
 
-Create an empty React project (for example with [Create React App](https://github.com/facebook/create-react-app)) **or** create a sandbox on [CodeSandbox](https://codesandbox.io/).
-
-### Step 2
-
-Create or download a JSON file. Sample files are in [`json_samples/`](json_samples/). Example:
-
-- [nasa.open.api.json](https://raw.githubusercontent.com/glaucopater/json2jsx/master/json_samples/nasa.open.api.json)
-
-### Step 3
-
-Run json2jsx with the JSON file as the first argument. It creates a folder of React components that mirror the JSON structure.
+## Command line
 
 ```bash
-yarn demo
-# or
-json2jsx json_samples/nasa.open.api.json
+json2jsx path/to/data.json
+json2jsx path/to/data.json my_prefix
 ```
 
-### Step 4
+With `defaultFolderPrefix: "currentdate"` in [`config.json`](config.json), output folders look like `output/20260531143000_data/`.
 
-Point your app entry file at the generated root component (`App.js` by default; rename via `config.json`). Run your dev server (for example `yarn start` in a CRA app, usually http://localhost:3000).
+Typical layout:
 
-### Step 5 (optional)
+```text
+output/<prefix>_<basename>/
+  App.js
+  App.css
+  ComponentA/
+    ComponentA.jsx
+    SubComponentB/
+      SubComponentB.jsx
+```
 
-Pass the JSON data as props to see values rendered:
+- Root component: `App.js` (name from `defaultRootComponentName`)
+- Nested components: `.jsx` under subfolders
+
+## Media gallery sample
+
+[`json_samples/media-gallery.json`](json_samples/media-gallery.json) uses [Glauco Pater’s Unsplash photos](https://unsplash.com/@glaucopater) and demonstrates:
+
+- Page metadata (title, summary, tags, hero image)
+- Nested `author` → `contact`
+- `gallery.items[]` with thumbnails and metadata
+- `highlights[]` and `relatedLinks[]` as lists
+
+```bash
+yarn demo:gallery
+```
+
+Generated parents render lists roughly like:
 
 ```jsx
-import App from "./path/to/output/.../App.js";
-import data from "./nasa.open.api.json";
+{props.highlights?.map((item, index) => (
+  <Highlights key={index} {...item} />
+))}
+```
+
+Scalar fields are labeled in the JSX, for example:
+
+```jsx
+<span className="Title">
+  <strong>Title:</strong> {props.title}
+</span>
+```
+
+## Using output in your own React app
+
+1. Generate components (see above).
+2. Import the root `App.js` and pass the same JSON shape as props:
+
+```jsx
+import App from "./output/gallery_media-gallery/App.js";
+import data from "./json_samples/media-gallery.json";
 
 <App {...data} />;
 ```
 
+3. Or wire only the subtree you need, matching the generated prop names (`page`, `author`, etc.).
+
+For Create React App, CodeSandbox, or similar, point the entry file at the generated root and pass your JSON file as props (see tutorial images below).
+
 ![Tutorial Step 5](/tutorial/json2jsx_tutorial_step_5.jpg)
-
-### Step 6 (optional)
-
-The tool is datatype-agnostic. Adjust generated components or prop markup as needed—for example, map `HdUrl` and `url` to images or links.
 
 ![Tutorial Step 6](/tutorial/json2jsx_tutorial_step_6.jpg)
 
-### Styling
+## How generation works
 
-Generated output includes a small CSS file that outlines the component tree so you can see structure before customizing styles.
-
-## Command line usage
-
-```bash
-json2jsx data.json
-json2jsx data.json my_folder_prefix
+```text
+JSON file → manageData (props vs children) → JSX templates → Prettier → output/
 ```
 
-Output layout (with `defaultFolderPrefix` set to `currentdate`, folders look like `YYYYMMDDHHmmss_data`):
+- **Objects** → child component + import
+- **Arrays of objects** → child component; parent uses `.map()` to render each item
+- **Arrays of primitives** → single labeled span with `.join(", ")`
+- **null** → empty string prop
+- **Image-like keys** → `<figure>` with `<img>` and `<figcaption>`
 
-- `output/<prefix>_<data>/App.js`
-- `output/<prefix>_<data>/Component1/Component1.jsx`
-- `output/<prefix>_<data>/Component2/Component2.jsx`
-- `output/<prefix>_<data>/Component3/SubComponent1/SubComponent1.jsx`
-
-Child components use `.jsx`; the root component is `.js` by default.
-
-### Example input (JSON)
-
-```json
-{
-  "game_indices": [
-    {
-      "game_index": 132,
-      "version": {
-        "name": "white-2",
-        "url": "https://pokeapi.co/api/v2/version/22/"
-      }
-    }
-  ]
-}
-```
-
-### Example output (class / `statefull` template)
-
-```javascript
-import React, { Component } from "react";
-
-export default class Game_indices extends Component {
-  componentDidMount() {
-    console.log(this.props);
-  }
-  render() {
-    return <div className="Game_indices"></div>;
-  }
-}
-```
-
-### Another input shape
-
-```json
-{
-  "sample": {
-    "propertyA": "string",
-    "propertyB": [1, 2, 3],
-    "propertyC": {
-      "subProperty1": 123,
-      "subProperty2": "abc"
-    }
-  }
-}
-```
-
-### Matching output
-
-```javascript
-import React, { Component } from "react";
-import PropertyC from "./PropertyC/PropertyC";
-
-export default class Sample extends Component {
-  componentDidMount() {
-    console.log(this.props);
-  }
-  render() {
-    return (
-      <div className="Sample">
-        <PropertyC />
-      </div>
-    );
-  }
-}
-```
-
-## Caveats
-
-- Input files must use the `.json` extension or generation will fail.
-- Root JSON arrays only use the **first** element to infer shape.
-- Config key `statefull` is intentional (legacy spelling) for class-based templates.
+Generated CSS outlines the component tree (borders/boxes) so structure is visible before you style for production.
 
 ## Configuration
 
-Defaults live in [`config.json`](config.json):
+[`config.json`](config.json):
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `outputDir` | `./output` | Writable folder for generated files |
-| `templatesFolder` | `./src/react-templates` | Component templates |
-| `silentMode` | `false` | When `false`, log file creation messages |
-| `defaultComponentType` | `functional` | `functional` or `statefull` (class components) |
-| `defaultRootComponentName` | `App` | Root component base name |
-| `defaultFolderPrefix` | `currentdate` | Output folder prefix; `currentdate` → timestamp |
-| `cleanUpTestOutput` | `true` | Remove integration-test output after `yarn test` |
+| `outputDir` | `./output` | Output directory |
+| `templatesFolder` | `./src/react-templates` | `functional` / `statefull` templates |
+| `silentMode` | `false` | Log each created file when `false` |
+| `defaultComponentType` | `functional` | `functional` or `statefull` |
+| `defaultRootComponentName` | `App` | Root file base name |
+| `defaultFolderPrefix` | `currentdate` | Folder prefix; `currentdate` = timestamp |
+| `cleanUpTestOutput` | `true` | Delete test output after `yarn test` |
 
-## Programmatic usage
+## Programmatic API
 
-`getRootComponent` is async (Prettier 3 formats output asynchronously):
+`getRootComponent` is async (Prettier 3):
 
 ```javascript
 const json2jsx = require("json2jsx");
@@ -193,30 +178,48 @@ const json2jsx = require("json2jsx");
 await json2jsx.getRootComponent("App", "./data.json", "my_prefix");
 ```
 
-## Test
+Sync helpers include `manageData`, `getProp`, `getComponentTag`, and `getDataFromFile`.
 
-```bash
-yarn test
-```
+## Caveats
 
-Sample JSON files for manual runs are in [`json_samples/`](json_samples/). When installed from npm, they also appear under `node_modules/json2jsx/json_samples/`.
+- Input must use a `.json` extension.
+- Component shape for arrays is inferred from the **first element** only; you may need to hand-edit templates for heterogeneous lists.
+- Config key **`statefull`** is the legacy spelling for class-based templates.
+- Image fields use a **name heuristic**; rename keys or edit generated JSX for full control.
+- Playground and `output/` are local dev aids; only `index.js`, `cli.js`, `config.json`, and `src/` ship on npm (`package.json` `files`).
 
-### Sample data sources
+## Samples in this repo
+
+| File | Purpose |
+|------|---------|
+| `json_samples/test.json` | Small tree (`yarn demo`) |
+| `json_samples/media-gallery.json` | Nested objects, lists, images (`yarn demo:gallery`) |
+| `json_samples/nasa.open.api.json` | Large real-world API payload |
+| `json_samples/pokemon.json`, `anapioficeandfire.json`, … | More fixtures |
+
+When installed from npm, samples also appear under `node_modules/json2jsx/json_samples/`.
+
+### External APIs used by sample JSON
 
 - [NASA Open API](https://api.nasa.gov/#getting-started)
-- [The Star Wars API](https://swapi.co/)
 - [A Song of Ice and Fire API](https://anapioficeandfire.com)
 - [Pokémon API](https://pokeapi.co/api/v2/pokemon/ditto)
 - [ISS Position API](http://api.open-notify.org/iss-now.json)
 
-More public APIs:
+More lists: [easy APIs without auth](https://shkspr.mobi/blog/2016/05/easy-apis-without-authentication), [public-apis](https://github.com/toddmotto/public-apis).
 
-- [Easy APIs without authentication](https://shkspr.mobi/blog/2016/05/easy-apis-without-authentication)
-- [public-apis (toddmotto)](https://github.com/toddmotto/public-apis)
+## Development
+
+```bash
+yarn install
+yarn test
+```
+
+CI runs tests on Node 18, 20, and 22 (see [`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
 
 ## Background
 
-In most React projects, a JSON (or JSON-like) view model sits behind the UI. The mapping is rarely one-to-one, but nested objects and arrays often correspond to components and lists. Json2jsx generates JSX files that follow the same nesting as your JSON.
+React apps often mirror a JSON (or JSON-like) view model. The mapping is rarely one-to-one, but nested objects and arrays frequently match components and lists. Json2jsx bootstraps that folder structure so you can refine markup and styling afterward.
 
 ## Thanks
 

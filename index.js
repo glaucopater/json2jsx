@@ -9,6 +9,8 @@ const {
   capitalize,
   createDir,
   pascalCase,
+  isImageProp,
+  getPropLabel,
 } = require("./src/helpers/functions");
 const defaultPath = process.cwd();
 
@@ -23,7 +25,7 @@ const {
 } = config;
 
 const minifiedCss =
-  "div,span{border:1px solid #111;padding:8px;min-width:16px;min-height:16px;display:block;margin:12px;box-shadow:4px 4px 4px 4px #11111130}";
+  "div,span,figure{border:1px solid #111;padding:8px;min-width:16px;min-height:16px;display:block;margin:12px;box-shadow:4px 4px 4px 4px #11111130}strong{display:inline;margin-right:4px}img{max-width:280px;height:auto;display:block;margin:8px;border:1px solid #333}figcaption{font-size:12px;margin-top:4px}";
 
 function loadTemplate(componentType) {
   const templatePath = path.join(
@@ -44,22 +46,99 @@ function manageError(err, message) {
 }
 
 module.exports = {
-  getComponentTag(componentName, componentType = defaultComponentType) {
-    const propsParameter =
-      componentType === "functional"
-        ? `{...props.${componentName}}`
-        : `{...this.props.${componentName}}`;
-    return `<${pascalCase(componentName)} ${propsParameter} />`;
+  getPropsRoot(componentType = defaultComponentType) {
+    return componentType === "functional" ? "props" : "this.props";
+  },
+
+  getComponentTag(
+    componentName,
+    componentType = defaultComponentType,
+    childData
+  ) {
+    const child = pascalCase(componentName);
+    const path = `${this.getPropsRoot(componentType)}.${componentName}`;
+    if (Array.isArray(childData)) {
+      return `{${path}?.map((item, index) => (
+        <${child} key={index} {...item} />
+      ))}`;
+    }
+    return `<${child} {...${path}} />`;
+  },
+
+  getPropValueExpression(prop, componentType = defaultComponentType) {
+    const path = `${this.getPropsRoot(componentType)}.${prop.name}`;
+    if (prop.valueType === "array") {
+      return `Array.isArray(${path}) ? ${path}.join(", ") : ${path}`;
+    }
+    return path;
   },
 
   getProp(prop, componentType = defaultComponentType) {
-    const propsParameter =
-      componentType === "functional"
-        ? `{props.${prop.name}}`
-        : `{this.props.${prop.name}}`;
-    return `<span className='${capitalize(
-      prop.name
-    )}'>${propsParameter}</span>`;
+    const className = capitalize(prop.name);
+    const label = getPropLabel(prop.name);
+    const valueExpression = this.getPropValueExpression(prop, componentType);
+    const propsParameter = `${this.getPropsRoot(componentType)}.${prop.name}`;
+
+    if (isImageProp(prop.name)) {
+      return `<figure className='${className}'><img src={${propsParameter}} alt="${label}" /><figcaption><strong>${label}:</strong> {${valueExpression}}</figcaption></figure>`;
+    }
+
+    return `<span className='${className}'><strong>${label}:</strong> {${valueExpression}}</span>`;
+  },
+
+  normalizeComponentData(data) {
+    if (!Array.isArray(data)) {
+      return data;
+    }
+    const objectItem = data.find(
+      (item) => item && typeof item === "object" && !Array.isArray(item)
+    );
+    if (objectItem) {
+      return objectItem;
+    }
+    let current = data;
+    while (Array.isArray(current) && current.length > 0) {
+      current = current[0];
+    }
+    if (current && typeof current === "object" && !Array.isArray(current)) {
+      return current;
+    }
+    return {};
+  },
+
+  arrayShouldBeChild(value) {
+    if (!Array.isArray(value) || value.length === 0) {
+      return false;
+    }
+    const first = value[0];
+    if (typeof first === "object" && first !== null) {
+      return true;
+    }
+    return false;
+  },
+
+  classifyProperty(name, value) {
+    if (value === null || value === undefined) {
+      return { kind: "prop", name, value: "" };
+    }
+    if (Array.isArray(value)) {
+      if (value.length === 0) {
+        return { kind: "prop", name, value: "" };
+      }
+      if (this.arrayShouldBeChild(value)) {
+        return { kind: "child", name };
+      }
+      return {
+        kind: "prop",
+        name,
+        value: value.map(String).join(", "),
+        valueType: "array",
+      };
+    }
+    if (typeof value === "object") {
+      return { kind: "child", name };
+    }
+    return { kind: "prop", name, value };
   },
 
   getComponentImport(componentName) {
@@ -99,63 +178,22 @@ module.exports = {
   manageData(data) {
     const dataProps = [];
     const dataChildren = [];
-    if (typeof data === "object" && data !== null) {
-      if (!Array.isArray(data)) {
-        Object.keys(data).forEach((item) => {
-          switch (typeof data[item]) {
-            case "boolean":
-            case "string":
-            case "number":
-              dataProps.push({
-                name: item,
-                value: data[item],
-              });
-              break;
-            case "object":
-              if (data[item]) {
-                dataChildren.push(item);
-              } else {
-                dataProps.push({
-                  name: item,
-                  value: "",
-                });
-              }
-              break;
-            default:
-              break;
-          }
-        });
-      } else if (data.length > 0) {
-        const firstItem = data[0];
-        if (typeof firstItem === "object" && firstItem !== null) {
-          Object.keys(firstItem).forEach((item) => {
-            switch (typeof firstItem[item]) {
-              case "boolean":
-              case "string":
-              case "number":
-                dataProps.push({
-                  name: item,
-                  value: firstItem[item],
-                });
-                break;
-              case "object":
-                if (firstItem[item]) {
-                  if (!Array.isArray(firstItem[item])) {
-                    dataChildren.push(item);
-                  }
-                } else {
-                  dataProps.push({
-                    name: item,
-                    value: "",
-                  });
-                }
-                break;
-              default:
-                break;
-            }
+    const source = this.normalizeComponentData(data);
+    if (typeof source === "object" && source !== null && !Array.isArray(source)) {
+      Object.keys(source).forEach((key) => {
+        const classified = this.classifyProperty(key, source[key]);
+        if (classified.kind === "child") {
+          dataChildren.push(classified.name);
+        } else {
+          dataProps.push({
+            name: classified.name,
+            value: classified.value,
+            ...(classified.valueType
+              ? { valueType: classified.valueType }
+              : {}),
           });
         }
-      }
+      });
     }
     return { dataProps, dataChildren };
   },
@@ -171,16 +209,16 @@ module.exports = {
     folderPrefix
   ) {
     if (data) {
-      if (!parentComponentName && Array.isArray(data)) {
-        data = data[0];
-      }
-      if (typeof data === "object" && data !== null) {
+      data = this.normalizeComponentData(data);
+      if (typeof data === "object" && data !== null && !Array.isArray(data)) {
         const { dataProps, dataChildren } = this.manageData(data);
         const template = loadTemplate(componentType);
         const component = recursiveRendering(template, {
           name: pascalCase(componentName),
           childComponent: dataChildren
-            .map((child) => this.getComponentTag(child, componentType))
+            .map((child) =>
+              this.getComponentTag(child, componentType, data[child])
+            )
             .join(""),
           className: pascalCase(componentName),
           importCssStatement:

@@ -4,6 +4,7 @@ const {
   capitalize,
   pascalCase,
   pad2,
+  isImageProp,
 } = require("./functions");
 
 test("recursiveRendering", () => {
@@ -32,4 +33,10 @@ test("capitalize", () => {
 test("pascalCase", () => {
   expect(pascalCase("hello")).toBe("Hello");
   expect(pascalCase("my_component")).toBe("MyComponent");
+});
+
+test("isImageProp", () => {
+  expect(isImageProp("heroImageUrl")).toBe(true);
+  expect(isImageProp("thumbnailUrl")).toBe(true);
+  expect(isImageProp("title")).toBe(false);
 });

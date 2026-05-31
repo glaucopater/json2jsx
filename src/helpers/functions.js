@@ -57,4 +57,18 @@ module.exports = {
   createDir: function (dirName) {
     fs.mkdirSync(dirName, { recursive: true });
   },
+  isImageProp: function (name) {
+    const key = name.toLowerCase();
+    return (
+      /(^|_)(image|img|photo|picture|thumbnail|avatar|icon|logo|poster|cover|hero)(_|$)/.test(
+        key
+      ) || /(url|src|image|photo|thumbnail|avatar|icon)$/.test(key)
+    );
+  },
+  getPropLabel: function (name) {
+    return name
+      .replace(/_/g, " ")
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/^./, (char) => char.toUpperCase());
+  },
 };

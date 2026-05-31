@@ -10,6 +10,7 @@
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
     "generate": "node cli.js",
     "demo": "node cli.js json_samples/test.json test_run",
+    "demo:gallery": "node cli.js json_samples/media-gallery.json gallery",
     "playground:setup": "node scripts/init-playground.js",
     "playground:install": "node scripts/init-playground.js --install",
     "playground": "node scripts/init-playground.js && yarn --cwd output/playground dev",

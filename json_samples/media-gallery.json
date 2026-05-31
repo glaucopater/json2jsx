@@ -1,0 +1,119 @@
+{
+  "page": {
+    "title": "Glauco Pater — photography",
+    "published": true,
+    "viewCount": 12840,
+    "summary": "Sample portfolio using photos from https://unsplash.com/@glaucopater (landscape, nature, street).",
+    "heroImageUrl": "https://images.unsplash.com/photo-1748701361547-ae71610ef1dc?w=1200",
+    "tags": ["unsplash", "landscape", "nature", "street", "travel"],
+    "author": {
+      "name": "Glauco Pater",
+      "role": "Photographer",
+      "location": "Berlin · Milano · Genova",
+      "avatarUrl": "https://images.unsplash.com/profile-fb-1519133660-cc8bcefb591e?w=200",
+      "contact": {
+        "email": "https://unsplash.com/@glaucopater",
+        "unsplash": "@glaucopater"
+      }
+    },
+    "gallery": {
+      "title": "Selected photos",
+      "layout": "grid",
+      "items": [
+        {
+          "id": "canopy",
+          "caption": "Lush green canopy with sunlight shining through",
+          "thumbnailUrl": "https://images.unsplash.com/photo-1748701361547-ae71610ef1dc?w=400",
+          "fullImageUrl": "https://images.unsplash.com/photo-1748701361547-ae71610ef1dc?w=1600",
+          "metadata": {
+            "width": 4000,
+            "height": 6000,
+            "featured": true
+          }
+        },
+        {
+          "id": "plant",
+          "caption": "Close-up of green leaves",
+          "thumbnailUrl": "https://images.unsplash.com/photo-1653228267852-1c91507f8048?w=400",
+          "fullImageUrl": "https://images.unsplash.com/photo-1653228267852-1c91507f8048?w=1600",
+          "metadata": {
+            "width": 3024,
+            "height": 4032,
+            "featured": false
+          }
+        },
+        {
+          "id": "moss",
+          "caption": "Green moss on brown tree trunk",
+          "thumbnailUrl": "https://images.unsplash.com/photo-1627930988182-91aa66d42687?w=400",
+          "fullImageUrl": "https://images.unsplash.com/photo-1627930988182-91aa66d42687?w=1600",
+          "metadata": {
+            "width": 3648,
+            "height": 5472,
+            "featured": false
+          }
+        },
+        {
+          "id": "building",
+          "caption": "Gray concrete building",
+          "thumbnailUrl": "https://images.unsplash.com/photo-1559497580-f6c93e6eadf6?w=400",
+          "fullImageUrl": "https://images.unsplash.com/photo-1559497580-f6c93e6eadf6?w=1600",
+          "metadata": {
+            "width": 3456,
+            "height": 5184,
+            "featured": false
+          }
+        },
+        {
+          "id": "water-tree",
+          "caption": "A tree next to a body of water",
+          "thumbnailUrl": "https://images.unsplash.com/photo-1662305856801-fb381938fc0d?w=400",
+          "fullImageUrl": "https://images.unsplash.com/photo-1662305856801-fb381938fc0d?w=1600",
+          "metadata": {
+            "width": 4160,
+            "height": 6240,
+            "featured": true
+          }
+        },
+        {
+          "id": "subway",
+          "caption": "People in subway train station",
+          "thumbnailUrl": "https://images.unsplash.com/photo-1559497580-2b42efec7dd6?w=400",
+          "fullImageUrl": "https://images.unsplash.com/photo-1559497580-2b42efec7dd6?w=1600",
+          "metadata": {
+            "width": 4000,
+            "height": 6000,
+            "featured": false
+          }
+        }
+      ]
+    },
+    "highlights": [
+      {
+        "label": "Nature",
+        "count": 18,
+        "iconUrl": "https://images.unsplash.com/photo-1627930988182-91aa66d42687?w=96"
+      },
+      {
+        "label": "Street",
+        "count": 6,
+        "iconUrl": "https://images.unsplash.com/photo-1559497580-2b42efec7dd6?w=96"
+      },
+      {
+        "label": "Landscape",
+        "count": 12,
+        "iconUrl": "https://images.unsplash.com/photo-1662305856801-fb381938fc0d?w=96"
+      }
+    ],
+    "relatedLinks": [
+      {
+        "title": "Unsplash profile",
+        "href": "https://unsplash.com/@glaucopater"
+      },
+      {
+        "title": "json2jsx on GitHub",
+        "href": "https://github.com/glaucopater/json2jsx"
+      }
+    ]
+  }
+}

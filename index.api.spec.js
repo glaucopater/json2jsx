@@ -23,8 +23,17 @@ describe("json2jsx API", () => {
   });
 
   test("getComponentTag uses props for functional components", () => {
-    expect(json2jsx.getComponentTag("foo", "functional")).toBe(
+    expect(json2jsx.getComponentTag("foo", "functional", { id: 1 })).toBe(
       "<Foo {...props.foo} />"
+    );
+  });
+
+  test("getComponentTag maps array children", () => {
+    expect(
+      json2jsx.getComponentTag("highlights", "functional", [{ label: "A" }])
+    ).toContain("props.highlights?.map");
+    expect(json2jsx.getComponentTag("highlights", "functional", [{ label: "A" }])).toContain(
+      "<Highlights"
     );
   });
 
@@ -38,6 +47,62 @@ describe("json2jsx API", () => {
     expect(
       json2jsx.getProp({ name: "title", value: "x" }, "functional")
     ).toContain("{props.title}");
+  });
+
+  test("getProp renders img for image-like fields", () => {
+    expect(
+      json2jsx.getProp(
+        { name: "thumbnailUrl", value: "https://example.com/a.png" },
+        "functional"
+      )
+    ).toContain("<img");
+    expect(
+      json2jsx.getProp(
+        { name: "thumbnailUrl", value: "https://example.com/a.png" },
+        "functional"
+      )
+    ).toContain("src={props.thumbnailUrl}");
+    expect(
+      json2jsx.getProp(
+        { name: "thumbnailUrl", value: "https://example.com/a.png" },
+        "functional"
+      )
+    ).toContain("<figcaption>");
+  });
+
+  test("getProp renders labels and formats arrays", () => {
+    const prop = json2jsx.getProp(
+      { name: "tags", value: "a, b", valueType: "array" },
+      "functional"
+    );
+    expect(prop).toContain("<strong>Tags:</strong>");
+    expect(prop).toContain('.join(", ")');
+  });
+
+  test("manageData treats primitive arrays as props", () => {
+    const { dataProps, dataChildren } = json2jsx.manageData({
+      tags: ["a", "b"],
+      items: [{ id: 1 }],
+    });
+    expect(dataProps.find((p) => p.name === "tags").value).toBe("a, b");
+    expect(dataProps.find((p) => p.name === "tags").valueType).toBe("array");
+    expect(dataChildren).toContain("items");
+  });
+
+  test("manageData handles media-gallery shape", () => {
+    const file = path.join(__dirname, "json_samples", "media-gallery.json");
+    const { data } = json2jsx.getDataFromFile(file);
+    const { dataChildren } = json2jsx.manageData(data.page);
+    expect(dataChildren).toEqual(
+      expect.arrayContaining([
+        "author",
+        "gallery",
+        "highlights",
+        "relatedLinks",
+      ])
+    );
+    expect(data.page.gallery.items).toHaveLength(6);
+    expect(data.page.heroImageUrl).toContain("images.unsplash.com");
   });
 
   test("getDataFromFile rejects non-json extension", () => {
