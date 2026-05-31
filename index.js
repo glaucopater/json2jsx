@@ -10,6 +10,7 @@ const {
   createDir,
   pascalCase,
   isImageProp,
+  isLinkProp,
   getPropLabel,
 } = require("./src/helpers/functions");
 const defaultPath = process.cwd();
@@ -50,6 +51,49 @@ module.exports = {
     return componentType === "functional" ? "props" : "this.props";
   },
 
+  isArrayOfPlainObjects(value) {
+    return (
+      Array.isArray(value) &&
+      value.length > 0 &&
+      value.every(
+        (item) => item && typeof item === "object" && !Array.isArray(item)
+      )
+    );
+  },
+
+  getArrayRows(value) {
+    if (!Array.isArray(value)) {
+      return value;
+    }
+    let rows = value;
+    while (
+      rows.length === 1 &&
+      Array.isArray(rows[0]) &&
+      !this.isArrayOfPlainObjects(rows)
+    ) {
+      rows = rows[0];
+    }
+    return rows;
+  },
+
+  getArrayMapPath(path, childData) {
+    if (!Array.isArray(childData)) {
+      return path;
+    }
+    let expr = path;
+    let current = childData;
+    while (
+      Array.isArray(current) &&
+      current.length === 1 &&
+      Array.isArray(current[0]) &&
+      !this.isArrayOfPlainObjects(current)
+    ) {
+      expr = `${expr}[0]`;
+      current = current[0];
+    }
+    return expr;
+  },
+
   getComponentTag(
     componentName,
     componentType = defaultComponentType,
@@ -58,15 +102,29 @@ module.exports = {
     const child = pascalCase(componentName);
     const path = `${this.getPropsRoot(componentType)}.${componentName}`;
     if (Array.isArray(childData)) {
-      return `{${path}?.map((item, index) => (
+      if (this.isArrayOfPlainObjects(childData)) {
+        const mapPath = this.getArrayMapPath(path, childData);
+        return `{${mapPath}?.map((item, index) => (
         <${child} key={index} {...item} />
       ))}`;
+      }
+      const rows = this.getArrayRows(childData);
+      const mapPath = this.getArrayMapPath(path, childData);
+      if (Array.isArray(rows) && rows.length > 0) {
+        return `{${mapPath}?.map((item, index) => (
+        <${child} key={index} items={item} />
+      ))}`;
+      }
+      return `<${child} items={${path}} />`;
     }
     return `<${child} {...${path}} />`;
   },
 
   getPropValueExpression(prop, componentType = defaultComponentType) {
     const path = `${this.getPropsRoot(componentType)}.${prop.name}`;
+    if (prop.valueType === "nestedArray") {
+      return `Array.isArray(${path}) ? ${path}.join(", ") : ${path}`;
+    }
     if (prop.valueType === "array") {
       return `Array.isArray(${path}) ? ${path}.join(", ") : ${path}`;
     }
@@ -81,6 +139,14 @@ module.exports = {
 
     if (isImageProp(prop.name)) {
       return `<figure className='${className}'><img src={${propsParameter}} alt="${label}" /><figcaption><strong>${label}:</strong> {${valueExpression}}</figcaption></figure>`;
+    }
+
+    if (isLinkProp(prop.name)) {
+      return `<span className='${className}'><strong>${label}:</strong>{" "}{${propsParameter} ? <a href={${propsParameter}} target="_blank" rel="noopener noreferrer">{${propsParameter}}</a> : null}</span>`;
+    }
+
+    if (prop.valueType === "boolean") {
+      return `<span className='${className}'><label><input type="checkbox" checked={!!${propsParameter}} readOnly aria-label="${label}" /> <strong>${label}</strong></label></span>`;
     }
 
     return `<span className='${className}'><strong>${label}:</strong> {${valueExpression}}</span>`;
@@ -137,6 +203,9 @@ module.exports = {
     }
     if (typeof value === "object") {
       return { kind: "child", name };
+    }
+    if (typeof value === "boolean") {
+      return { kind: "prop", name, value, valueType: "boolean" };
     }
     return { kind: "prop", name, value };
   },
@@ -198,6 +267,37 @@ module.exports = {
     return { dataProps, dataChildren };
   },
 
+  getChildData(rawData, childName) {
+    if (rawData && typeof rawData === "object" && !Array.isArray(rawData)) {
+      return rawData[childName];
+    }
+    return undefined;
+  },
+
+  getDataSource(rawData, normalizedData) {
+    if (
+      Array.isArray(rawData) &&
+      normalizedData &&
+      typeof normalizedData === "object" &&
+      !Array.isArray(normalizedData)
+    ) {
+      return normalizedData;
+    }
+    return rawData;
+  },
+
+  buildComponentProps(normalizedData, rawData) {
+    let { dataProps, dataChildren } = this.manageData(normalizedData);
+    if (
+      dataProps.length === 0 &&
+      dataChildren.length === 0 &&
+      Array.isArray(rawData)
+    ) {
+      dataProps.push({ name: "items", value: "", valueType: "nestedArray" });
+    }
+    return { dataProps, dataChildren };
+  },
+
   async writeComponent(
     data,
     baseFilename,
@@ -209,15 +309,28 @@ module.exports = {
     folderPrefix
   ) {
     if (data) {
-      data = this.normalizeComponentData(data);
-      if (typeof data === "object" && data !== null && !Array.isArray(data)) {
-        const { dataProps, dataChildren } = this.manageData(data);
+      const rawData = data;
+      const normalizedData = this.normalizeComponentData(data);
+      if (
+        typeof normalizedData === "object" &&
+        normalizedData !== null &&
+        !Array.isArray(normalizedData)
+      ) {
+        const { dataProps, dataChildren } = this.buildComponentProps(
+          normalizedData,
+          rawData
+        );
+        const dataSource = this.getDataSource(rawData, normalizedData);
         const template = loadTemplate(componentType);
         const component = recursiveRendering(template, {
           name: pascalCase(componentName),
           childComponent: dataChildren
             .map((child) =>
-              this.getComponentTag(child, componentType, data[child])
+              this.getComponentTag(
+                child,
+                componentType,
+                this.getChildData(dataSource, child)
+              )
             )
             .join(""),
           className: pascalCase(componentName),
@@ -266,7 +379,7 @@ module.exports = {
         manageError(null, `The file ${filename} was created!`);
         for (const child of dataChildren) {
           await this.writeComponent(
-            data[child],
+            this.getChildData(dataSource, child),
             baseFilename,
             child,
             defaultComponentType,
